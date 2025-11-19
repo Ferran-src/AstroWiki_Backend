@@ -38,6 +38,8 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-core:0.55.0")
     implementation("org.jetbrains.exposed:exposed-dao:0.55.0")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.55.0")
+    implementation("org.jetbrains.exposed:exposed-java-time:0.55.0") // O la versión correspondiente
+
 
     // Driver de la base de datos (ej: PostgreSQL, H2, SQLite)
     // Ejemplo para H2 (base de datos en memoria, útil para pruebas/desarrollo)
