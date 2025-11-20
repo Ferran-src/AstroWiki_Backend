@@ -33,7 +33,7 @@ object Categorias : Table("categorias") {
     val id = integer("id_categoria").autoIncrement().entityId()
     val nombreCategoria = varchar("nombre_categoria", 100).uniqueIndex()
     val descripcion = text("descripcion").nullable()
-    override val primaryKey = PrimaryKey(Usuarios.id)
+    override val primaryKey = PrimaryKey(id)
 
 }
 
@@ -52,7 +52,7 @@ object Imagenes : Table("imagenes") {
     val fechaSubida = timestamp("fecha_subida").defaultExpression(CurrentTimestamp)
     val articuloId = integer("articulo_id").references(Articulos.id, onDelete = ReferenceOption.CASCADE)
 
-    override val primaryKey = PrimaryKey(Usuarios.id)
+    override val primaryKey = PrimaryKey(id)
 
 }
 
@@ -63,7 +63,7 @@ object Secciones : Table("secciones") {
     val creadorId = integer("creador_id").references(Usuarios.id)
     val fechaCreacion = timestamp("fecha_creacion").defaultExpression(CurrentTimestamp)
 
-    override val primaryKey = PrimaryKey(Usuarios.id)
+    override val primaryKey = PrimaryKey(id)
 
 }
 
@@ -75,7 +75,7 @@ object Posts : Table("posts") {
     val seccionId = integer("seccion_id").references(Secciones.id, onDelete = ReferenceOption.CASCADE)
     val fechaCreacion = timestamp("fecha_creacion").defaultExpression(CurrentTimestamp)
 
-    override val primaryKey = PrimaryKey(Usuarios.id)
+    override val primaryKey = PrimaryKey(id)
 
 }
 
@@ -87,7 +87,7 @@ object Comentarios : Table("comentarios") {
     val comentarioPadreId = integer("comentario_padre_id").references(id, onDelete = ReferenceOption.CASCADE)
     val fechaCreacion = timestamp("fecha_creacion").defaultExpression(CurrentTimestamp)
 
-    override val primaryKey = PrimaryKey(Usuarios.id)
+    override val primaryKey = PrimaryKey(id)
 
 }
 
