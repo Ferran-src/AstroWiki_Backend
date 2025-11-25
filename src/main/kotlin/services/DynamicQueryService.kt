@@ -9,7 +9,6 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greater
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
 
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 
@@ -85,7 +84,7 @@ class DynamicQueryService {
 
             // 5. Aplicar LIMIT y OFFSET
             request.limit?.let { limit ->
-                query = query.limit(limit, (request.offset ?: 0).toLong())
+                query = query.limit(limit).offset((request.offset ?: 0).toLong())
             }
 
             // 6. Ejecutar y mapear resultados
@@ -146,97 +145,95 @@ class DynamicQueryService {
     }
 
     // Función helper para construir la operación WHERE basada en el operador
+
+    // Función helper para construir la operación WHERE basada en el operador
     private fun buildFilterOp(column: Column<*>, operator: String, value: String): Op<Boolean> {
         // Asegurar que el valor se convierte al tipo correcto de la columna
-        // Exposed puede ayudar con esto, pero debes manejar casos como 'in' que requieren listas.
-        return when (operator) {
-            "eq" -> {
-                if (column.columnType is VarCharColumnType) {
-                    column as Column<String>
-                    column eq value
-                } else if (column.columnType is IntegerColumnType) {
-                    (column eq value.toIntOrNull())
-                        ?: throw IllegalArgumentException("Valor no numérico para 'eq' en columna numérica: $value")
-                } else if (column.columnType is TextColumnType) {
-                    column as Column<String>
-                    column eq value
-                } else if (column.columnType is BooleanColumnType) {
-                    column as Column<Boolean>
-                    column eq (value.lowercase() == "true")
-                } else {
-                    // Manejar otros tipos según sea necesario
-                    // Por simplicidad, asumimos string si no es numérico
-                    column as Column<String>
-                    column eq value
+        // Seleccionamos el tipo de columna para aplicar la operación correcta
+        return when {
+            // Operadores para cadenas (VARCHAR, TEXT)
+            column.columnType is VarCharColumnType || column.columnType is TextColumnType -> {
+                val typedColumn = column as Column<String> // Hacer cast seguro
+                when (operator) {
+                    "eq" -> typedColumn eq value
+                    "neq" -> typedColumn neq value
+                    "like" -> typedColumn like value
+                    else -> throw IllegalArgumentException("Operador '$operator' no soportado para columnas de texto")
                 }
             }
-            "neq" -> {
-                if (column.columnType is org.jetbrains.exposed.sql.VarCharColumnType) {
-                    column as Column<String>
-                    column neq value
-                } else if (column.columnType is org.jetbrains.exposed.sql.IntegerColumnType) {
-                    column as Column<Int>
-                    column neq value.toIntOrNull() ?: throw IllegalArgumentException("Valor no numérico para 'neq' en columna numérica: $value")
-                } else {
-                    column as Column<String>
-                    column neq value
+            // Operadores para enteros
+            column.columnType is IntegerColumnType -> {
+                val typedColumn = column as Column<Int> // Hacer cast seguro
+                val typedValue = value.toIntOrNull() ?: throw IllegalArgumentException("Valor no numérico para columna Int: $value")
+                when (operator) {
+                    "eq" -> typedColumn eq typedValue
+                    "neq" -> typedColumn neq typedValue
+                    "gt" -> typedColumn greater typedValue
+                    "lt" -> typedColumn less typedValue
+                    "gte" -> typedColumn greaterEq typedValue
+                    "lte" -> typedColumn lessEq typedValue
+                    else -> throw IllegalArgumentException("Operador '$operator' no soportado para columnas numéricas")
                 }
             }
-            "gt" -> {
-                if (column.columnType is IntegerColumnType) {
-                    column as Column<Int>
-                    column greater value.toIntOrNull() ?: throw IllegalArgumentException("Valor no numérico para 'gt' en columna numérica: $value")
-                } else {
-                    // Solo numéricos para gt
-                    throw IllegalArgumentException("Operador 'gt' solo válido para columnas numéricas")
+            // Operadores para booleanos
+            column.columnType is BooleanColumnType -> {
+                val typedColumn = column as Column<Boolean> // Hacer cast seguro
+                val typedValue = value.lowercase() == "true"
+                when (operator) {
+                    "eq" -> typedColumn eq typedValue
+                    "neq" -> typedColumn neq typedValue
+                    else -> throw IllegalArgumentException("Operador '$operator' no soportado para columnas booleanas")
                 }
             }
-            "lt" -> {
-                if (column.columnType is IntegerColumnType) {
-                    column as Column<Int>
-                    column less value.toIntOrNull() ?: throw IllegalArgumentException("Valor no numérico para 'lt' en columna numérica: $value")
-                } else {
-                    throw IllegalArgumentException("Operador 'lt' solo válido para columnas numéricas")
+            // Operadores para Long (similar a Int)
+            column.columnType is LongColumnType -> {
+                val typedColumn = column as Column<Long>
+                val typedValue = value.toLongOrNull() ?: throw IllegalArgumentException("Valor no numérico para columna Long: $value")
+                when (operator) {
+                    "eq" -> typedColumn eq typedValue
+                    "neq" -> typedColumn neq typedValue
+                    "gt" -> typedColumn greater typedValue
+                    "lt" -> typedColumn less typedValue
+                    "gte" -> typedColumn greaterEq typedValue
+                    "lte" -> typedColumn lessEq typedValue
+                    else -> throw IllegalArgumentException("Operador '$operator' no soportado para columnas numéricas Long")
                 }
             }
-            "gte" -> {
-                if (column.columnType is org.jetbrains.exposed.sql.IntegerColumnType) {
-                    column as Column<Int>
-                    column greaterEq value.toIntOrNull() ?: throw IllegalArgumentException("Valor no numérico para 'gte' en columna numérica: $value")
-                } else {
-                    throw IllegalArgumentException("Operador 'gte' solo válido para columnas numéricas")
+            // Operadores para Double (similar a Int)
+            column.columnType is DoubleColumnType -> {
+                val typedColumn = column as Column<Double>
+                val typedValue = value.toDoubleOrNull() ?: throw IllegalArgumentException("Valor no numérico para columna Double: $value")
+                when (operator) {
+                    "eq" -> typedColumn eq typedValue
+                    "neq" -> typedColumn neq typedValue
+                    "gt" -> typedColumn greater typedValue
+                    "lt" -> typedColumn less typedValue
+                    "gte" -> typedColumn greaterEq typedValue
+                    "lte" -> typedColumn lessEq typedValue
+                    else -> throw IllegalArgumentException("Operador '$operator' no soportado para columnas numéricas Double")
                 }
             }
-            "lte" -> {
-                if (column.columnType is org.jetbrains.exposed.sql.IntegerColumnType) {
-                    column as Column<Int>
-                    column lessEq value.toIntOrNull() ?: throw IllegalArgumentException("Valor no numérico para 'lte' en columna numérica: $value")
-                } else {
-                    throw IllegalArgumentException("Operador 'lte' solo válido para columnas numéricas")
+            // Operadores para Float (similar a Int)
+            column.columnType is FloatColumnType -> {
+                val typedColumn = column as Column<Float>
+                val typedValue = value.toFloatOrNull() ?: throw IllegalArgumentException("Valor no numérico para columna Float: $value")
+                when (operator) {
+                    "eq" -> typedColumn eq typedValue
+                    "neq" -> typedColumn neq typedValue
+                    "gt" -> typedColumn greater typedValue
+                    "lt" -> typedColumn less typedValue
+                    "gte" -> typedColumn greaterEq typedValue
+                    "lte" -> typedColumn lessEq typedValue
+                    else -> throw IllegalArgumentException("Operador '$operator' no soportado para columnas numéricas Float")
                 }
             }
-            "in" -> {
-                if (column.columnType is org.jetbrains.exposed.sql.VarCharColumnType) {
-                    column as Column<String>
-                    val valuesList = value.split(",").map { it.trim() }
-                    column inList valuesList
-                } else if (column.columnType is org.jetbrains.exposed.sql.IntegerColumnType) {
-                    column as Column<Int>
-                    val valuesList = value.split(",").map { it.trim().toIntOrNull() ?: throw IllegalArgumentException("Valor no numérico en lista para 'in': $it") }
-                    column inList valuesList
-                } else {
-                    throw IllegalArgumentException("Operador 'in' solo válido para columnas numéricas o de texto")
-                }
+            // Puedes añadir más tipos según necesites (Date, Time, etc.)
+
+            else -> {
+                // Si el tipo de columna no está soportado por esta lógica, lanzar un error
+                throw IllegalArgumentException("Tipo de columna no soportado para operaciones de filtro: ${column.columnType}")
             }
-            "like" -> {
-                if (column.columnType is VarCharColumnType || column.columnType is TextColumnType) {
-                    column as Column<String>
-                    column like value
-                } else {
-                    throw IllegalArgumentException("Operador 'like' solo válido para columnas de texto")
-                }
-            }
-            else -> throw IllegalArgumentException("Operador no soportado: $operator")
         }
     }
+
 }
