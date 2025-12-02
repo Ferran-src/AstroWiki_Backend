@@ -1,6 +1,5 @@
 package org.example.services
 
-// services/DynamicQueryService.kt
 
 import org.example.models.*
 import org.example.database.*
@@ -127,7 +126,7 @@ class DynamicQueryService {
                 else -> throw IllegalArgumentException("Campo no encontrado en Usuarios: $fieldName")
             }
         }
-        if (table is Articulos) {
+        else if (table is Articulos) {
             return when (fieldName) {
                 "id_articulo" -> Articulos.id
                 "titulo" -> Articulos.titulo
@@ -138,22 +137,85 @@ class DynamicQueryService {
                 else -> throw IllegalArgumentException("Campo no encontrado en Articulos: $fieldName")
             }
         }
-        // ... repetir para otras tablas (Categorias, Posts, etc.)
-        // Este es un punto crítico y propenso a errores si hay muchas columnas.
-        // Considera estrategias para automatizar o simplificar este mapeo.
+
+        else if (table is Categorias) {
+            return when (fieldName) {
+                "id_categoria" -> Categorias.id
+                "nombre_categoria" -> Categorias.nombreCategoria
+                "descripcion" -> Categorias.descripcion
+                else -> throw IllegalArgumentException("Campo no encontrado en Categorias: $fieldName")
+            }
+        }
+        else if (table is ArticulosCategorias) {
+            return when (fieldName) {
+                "articulo_id" -> ArticulosCategorias.articuloId
+                "categoria_id" -> ArticulosCategorias.categoriaId
+                else -> throw IllegalArgumentException("Campo no encontrado en ArticulosCategorias: $fieldName")
+            }
+        }
+        else if (table is Imagenes) {
+            return when (fieldName) {
+                "id_imagen" -> Imagenes.id
+                "titulo" -> Imagenes.titulo
+                "descripcion" -> Imagenes.descripcion
+                "url" -> Imagenes.url
+                "fecha_subida" -> Imagenes.fechaSubida
+                "articulo_id" -> Imagenes.articuloId
+                else -> throw IllegalArgumentException("Campo no encontrado en Imagenes: $fieldName")
+            }
+        }
+        else if (table is Secciones) {
+            return when (fieldName) {
+                "id_seccion" -> Secciones.id
+                "titulo" -> Secciones.titulo
+                "descripcion" -> Secciones.descripcion
+                "creador_id" -> Secciones.creadorId
+                "fecha_creacion" -> Secciones.fechaCreacion
+                else -> throw IllegalArgumentException("Campo no encontrado en Secciones: $fieldName")
+            }
+        }
+        else if (table is Posts) {
+            return when (fieldName) {
+                "id_post" -> Posts.id
+                "titulo" -> Posts.titulo
+                "contenido" -> Posts.contenido
+                "autor_id" -> Posts.autorId
+                "seccion_id" -> Posts.seccionId
+                "fecha_creacion" -> Posts.fechaCreacion
+                else -> throw IllegalArgumentException("Campo no encontrado en Posts: $fieldName")
+            }
+        }
+        else if (table is Comentarios) {
+            return when (fieldName) {
+                "id_comentario" -> Comentarios.id
+                "contenido" -> Comentarios.contenido
+                "autor_id" -> Comentarios.autorId
+                "post_id" -> Comentarios.postId
+                "comentario_padre_id" -> Comentarios.comentarioPadreId
+                "fecha_creacion" -> Comentarios.fechaCreacion
+                else -> throw IllegalArgumentException("Campo no encontrado en Comentarios: $fieldName")
+            }
+        }
+        else if (table is SeguimientosSecciones) {
+            return when (fieldName) {
+                "usuario_id" -> SeguimientosSecciones.usuarioId
+                "seccion_id" -> SeguimientosSecciones.seccionId
+                else -> throw IllegalArgumentException("Campo no encontrado en SeguimientosSecciones: $fieldName")
+            }
+        }
+
         throw IllegalArgumentException("Mapeo de campo no encontrado para tabla ${table.tableName} y campo $fieldName")
     }
 
     // Función helper para construir la operación WHERE basada en el operador
 
-    // Función helper para construir la operación WHERE basada en el operador
     private fun buildFilterOp(column: Column<*>, operator: String, value: String): Op<Boolean> {
         // Asegurar que el valor se convierte al tipo correcto de la columna
         // Seleccionamos el tipo de columna para aplicar la operación correcta
         return when {
             // Operadores para cadenas (VARCHAR, TEXT)
             column.columnType is VarCharColumnType || column.columnType is TextColumnType -> {
-                val typedColumn = column as Column<String> // Hacer cast seguro
+                val typedColumn = column as Column<String>
                 when (operator) {
                     "eq" -> typedColumn eq value
                     "neq" -> typedColumn neq value
@@ -163,7 +225,7 @@ class DynamicQueryService {
             }
             // Operadores para enteros
             column.columnType is IntegerColumnType -> {
-                val typedColumn = column as Column<Int> // Hacer cast seguro
+                val typedColumn = column as Column<Int>
                 val typedValue = value.toIntOrNull() ?: throw IllegalArgumentException("Valor no numérico para columna Int: $value")
                 when (operator) {
                     "eq" -> typedColumn eq typedValue
@@ -177,7 +239,7 @@ class DynamicQueryService {
             }
             // Operadores para booleanos
             column.columnType is BooleanColumnType -> {
-                val typedColumn = column as Column<Boolean> // Hacer cast seguro
+                val typedColumn = column as Column<Boolean>
                 val typedValue = value.lowercase() == "true"
                 when (operator) {
                     "eq" -> typedColumn eq typedValue
@@ -227,7 +289,6 @@ class DynamicQueryService {
                     else -> throw IllegalArgumentException("Operador '$operator' no soportado para columnas numéricas Float")
                 }
             }
-            // Puedes añadir más tipos según necesites (Date, Time, etc.)
 
             else -> {
                 // Si el tipo de columna no está soportado por esta lógica, lanzar un error
