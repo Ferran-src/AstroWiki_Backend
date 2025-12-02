@@ -7,8 +7,8 @@ import io.ktor.server.netty.*
 import org.example.plugins.configureRouting
 
 fun main() {
-
-    embeddedServer(Netty, port = 8080) { // o System.getenv("PORT")
+    //Iniciacion del server asincrono
+    embeddedServer(Netty, port = 8080) {
         module()
     }.start(wait = true)
 

@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.timestamp
 
+//Configuracion de las tablas para exposed
 object Usuarios : Table("usuarios") {
     val id = integer("id_usuario").autoIncrement().entityId()
     val nombreUsuario = varchar("nombre_usuario", 50).uniqueIndex()

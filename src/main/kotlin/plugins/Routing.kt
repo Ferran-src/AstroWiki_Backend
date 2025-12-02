@@ -10,12 +10,12 @@ fun Application.configureRouting() {
         // Agrupar rutas bajo un prefijo común es una buena práctica
         route("/api/v1") {
             // Llama a las funciones que definen rutas específicas
-           // articuloRoutes() // Define las rutas para /articulos (GET, POST, etc.)
-           // usuarioRoutes()  // Define las rutas para /usuarios (GET, POST, etc.)
-           // categoriaRoutes() // Define las rutas para /categorias (GET, POST, etc.)
-            // forumRoutes() // Define las rutas para /foro (GET, POST, etc.)
-            // imageRoutes() // Define las rutas para /imagenes (GET, POST, etc.)
-            dynamicQueryRoutes() // Define la ruta para /query (POST)
+           // articuloRoutes() // Define las rutas para /articulos
+           // usuarioRoutes()  // Define las rutas para /usuarios
+           // categoriaRoutes() // Define las rutas para /categorias
+            // forumRoutes() // Define las rutas para /foro
+            // imageRoutes() // Define las rutas para /imagenes
+            dynamicQueryRoutes() // Define la ruta para /query
         }
 
         // Ruta raíz u otras rutas que no necesiten un prefijo
