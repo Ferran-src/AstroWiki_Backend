@@ -22,7 +22,6 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:2.3.12")
 
     // Manejo de rutas y parámetros
-    implementation("io.ktor:ktor-server-routing-jvm:2.3.12")
 
     // CORS (Permite solicitudes desde otros dominios, crucial para frontend web)
     implementation("io.ktor:ktor-server-cors-jvm:2.3.12")
