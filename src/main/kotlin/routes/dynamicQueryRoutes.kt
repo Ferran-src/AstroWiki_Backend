@@ -12,7 +12,7 @@ import org.example.services.DynamicQueryService
 
 fun Route.dynamicQueryRoutes() {
     val service = DynamicQueryService()
-    route("/api/v1/query") {
+    route("/query") {
         post() {
             try {
                 // Ktor deserializa automáticamente el cuerpo JSON en un objeto DynamicQueryRequest
