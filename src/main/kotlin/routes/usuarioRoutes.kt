@@ -8,9 +8,11 @@ import io.ktor.server.routing.*
 import org.example.models.DynamicQueryRequest
 
 import org.example.services.DynamicQueryService
+import org.example.services.UsuarioService
 
 fun Route.userRoutes() {
     route("/api/v1/user") {
+        val service = UsuarioService()
         post() {
             try {
                 // Ktor deserializa automáticamente el cuerpo JSON en un objeto DynamicQueryRequest
