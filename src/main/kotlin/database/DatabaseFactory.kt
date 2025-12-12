@@ -7,14 +7,18 @@ import org.jetbrains.exposed.sql.Database
 
 
 object DatabaseFactory {
-    private val dotenv = dotenv()
+   // private val dotenv = dotenv()
 
     fun init() {
         val config = HikariConfig().apply {
 
-            jdbcUrl = dotenv["DATABASE_URL"] ?: error("DATABASE_URL no encontrada en .env")
-            username = dotenv["DATABASE_USER"] ?: error("DATABASE_USER no encontrado en .env")
-            password = dotenv["DATABASE_PASSWORD"] ?: error("DATABASE_PASSWORD no encontrado en .env")
+//            jdbcUrl = dotenv["DATABASE_URL"] ?: error("DATABASE_URL no encontrada en .env")
+//            username = dotenv["DATABASE_USER"] ?: error("DATABASE_USER no encontrado en .env")
+//            password = dotenv["DATABASE_PASSWORD"] ?: error("DATABASE_PASSWORD no encontrado en .env")
+
+            jdbcUrl = "jdbc:postgresql://dpg-d4etp58dl3ps73bt9g50-a.frankfurt-postgres.render.com:5432/astrodb_ixtt"
+            username = "admin"
+            password = "qDzugbffE7wTqUmDKqZiDGqVFPdH7A9b"
 
             // Driver de la base de datos
             driverClassName = "org.postgresql.Driver"

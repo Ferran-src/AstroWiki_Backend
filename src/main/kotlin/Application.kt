@@ -16,6 +16,8 @@ fun main() {
 
 }
 fun Application.module() {
+
+    DatabaseFactory.init()
     // Llama a cada función de configuración en el orden deseado
     configureRouting()       // Registra las rutas (endpoints)
 }
