@@ -30,6 +30,8 @@ object DatabaseFactory {
             maxLifetime = 1200000
             connectionTimeout = 30000
 
+            addDataSourceProperty("ssl", "true")
+            addDataSourceProperty("sslmode", "require")
 
             addDataSourceProperty("tcpKeepAlive", "true")
             addDataSourceProperty("cachePrepStmts", "true")
@@ -40,6 +42,7 @@ object DatabaseFactory {
         val dataSource = HikariDataSource(config)
 
         Database.connect(dataSource)
+        println("✅ BASE DE DATOS CONECTADA")
 
     }
 }

@@ -40,13 +40,15 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-java-time:0.55.0") // O la versión correspondiente
 
 
-    // Driver de la base de datos (ej: PostgreSQL, H2, SQLite)
     // Ejemplo para H2 (base de datos en memoria, útil para pruebas/desarrollo)
     implementation("com.h2database:h2:2.2.224")
     // Ejemplo para PostgreSQL (más común en producción)
-    // implementation("org.postgresql:postgresql:<version_postgresql>")
     // Ejemplo para SQLite
     // implementation("org.xerial:sqlite-jdbc:<version_sqlite>")
+
+    // Driver de la base de datos (ej: PostgreSQL, H2, SQLite)
+    // implementation("org.postgresql:postgresql:<version_postgresql>")
+    implementation("org.postgresql:postgresql:42.7.3")
 
     // Pool de conexiones (recomendado para producción)
     implementation("com.zaxxer:HikariCP:6.3.0") // Para Java 11+

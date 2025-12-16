@@ -17,6 +17,10 @@ fun Route.articuloRoutes() {
         get {
             //call.respond(service.getAll())
             call.respondText("Hola")
+            println("🔥 Entrando a GET /articulos")
+            val lista = service.getAll()
+            println("🔥 Resultado: $lista")
+            call.respond(lista)
         }
 
         get("{id}") {
@@ -35,16 +39,16 @@ fun Route.articuloRoutes() {
             call.respond(mapOf("id" to id))
         }
 
-        put("{id}") {
-            val id = call.parameters["id"]?.toIntOrNull()
-                ?: return@put call.respond(HttpStatusCode.BadRequest, "ID inválido")
-
-            val articulo = call.receive<Articulo>()
-            val ok = service.update(id, articulo)
-
-            if (ok) call.respond("Actualizado")
-            else call.respond(HttpStatusCode.NotFound, "No encontrado")
-        }
+//        put("{id}") {
+//            val id = call.parameters["id"]?.toIntOrNull()
+//                ?: return@put call.respond(HttpStatusCode.BadRequest, "ID inválido")
+//
+//            val articulo = call.receive<Articulo>()
+//            val ok = service.update(id, articulo)
+//
+//            if (ok) call.respond("Actualizado")
+//            else call.respond(HttpStatusCode.NotFound, "No encontrado")
+//        }
 
         delete("{id}") {
             val id = call.parameters["id"]?.toIntOrNull()
