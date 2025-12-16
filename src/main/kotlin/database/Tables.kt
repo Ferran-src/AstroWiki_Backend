@@ -26,7 +26,7 @@ object Articulos : Table("articulos") {
     val fechaCreacion = timestamp("fecha_creacion").defaultExpression(CurrentTimestamp)
     val fechaUltimaEdicion = timestamp("fecha_ultima_edicion").defaultExpression(CurrentTimestamp)
     val estado = varchar("estado", 10).default("activo")
-    override val primaryKey = PrimaryKey(Usuarios.id)
+    override val primaryKey = PrimaryKey(id)
 
 }
 

@@ -3,6 +3,7 @@ package org.example
 import io.ktor.server.application.Application
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import org.example.database.DatabaseFactory
 
 import org.example.plugins.configureRouting
 
@@ -15,6 +16,6 @@ fun main() {
 
 }
 fun Application.module() {
-    // Llama a cada función de configuración en el orden deseado
+    DatabaseFactory.init()
     configureRouting()       // Registra las rutas (endpoints)
 }

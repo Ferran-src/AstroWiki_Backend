@@ -1,6 +1,7 @@
 package org.example.services
 
 
+import at.favre.lib.crypto.bcrypt.BCrypt
 import org.example.daos.UsuarioDAO
 import org.example.models.Usuario
 import java.security.MessageDigest
@@ -41,6 +42,32 @@ class UsuarioService {
         return dao.findByCorreo(correo)
     }
 
+    fun authenticateUsuario(correo: String, contrasenaPlana: String): Usuario? {
+        // 1. Buscar al usuario por correo
+        val usuario =
+            dao.findByCorreo(correo) ?: return null
+
+        // 2. Comparar la contraseña ingresada con el hash almacenado
+        // Asumiendo que la contraseña almacenada en la base de datos es un hash BCrypt.
+        // El método BCrypt.verify() compara el texto plano con el hash.
+        val passwordVerificationResult = BCrypt.verifyer().verify(
+            contrasenaPlana.toCharArray(),
+            usuario.contraseña // El hash almacenado
+        )
+
+        if (passwordVerificationResult.verified) {
+            // Las contraseñas coinciden, autenticación exitosa.
+            // Devolvemos el usuario (idealmente sin la contraseña en la respuesta).
+            // Podrías devolver solo el ID o un objeto específico para autenticación (como un token).
+            // Por simplicidad del ejemplo, devolvemos el objeto Usuario completo (menos la contraseña).
+            // En la práctica, excluyes la contraseña del objeto devuelto o usas un DTO diferente.
+            return usuario.copy(contraseña = "") // O no incluir la contraseña en el modelo de respuesta
+        } else {
+            // La contraseña no coincide.
+            return null
+        }
+    }
+
     fun createUsuario(usuario: Usuario): Usuario {
 
         validateUsuario(usuario, isUpdate = false)
@@ -65,10 +92,7 @@ class UsuarioService {
         }
         validateNombreUsuarioAndCorreo(request.nombreUsuario, request.correo)
 
-        val usuarioExistente = dao.findById(id)
-        if (usuarioExistente == null) {
-            return false // Usuario no encontrado
-        }
+        val usuarioExistente = dao.findById(id) ?: return false // Usuario no encontrado
 
         // Verificar unicidad si cambia nombre de usuario o correo
         if (request.nombreUsuario != usuarioExistente.nombreUsuario) {
@@ -96,22 +120,6 @@ class UsuarioService {
 
         // Actualizar solo la contraseña en el DAO
         return dao.updatePassword(id, hashedPassword)
-    }
-
-    // Metodo genérico que podría usar uno o ambos, dependiendo de lo que reciba el controlador
-    fun updateUsuario(id: Int, perfilRequest: ActualizarPerfilRequest? = null, contrasenaRequest: CambiarContrasenaRequest? = null): Boolean {
-        var perfilActualizado = true
-        var contrasenaActualizada = true
-
-        if (perfilRequest != null) {
-            perfilActualizado = updatePerfilUsuario(id, perfilRequest)
-        }
-
-        if (contrasenaRequest != null) {
-            contrasenaActualizada = cambiarContrasenaUsuario(id, contrasenaRequest)
-        }
-
-        return perfilActualizado && contrasenaActualizada
     }
 
 
@@ -150,11 +158,6 @@ class UsuarioService {
         }
     }
     private fun hashPassword(password: String): String {
-        // Ejemplo, implementar a futuro BCrypt o Argon2
-        // return BCrypt.withDefaults().hashToString(12, password.toCharArray())
-        // return Argon2Factory.create().hash(2, 65536, 1, password.toCharArray())
-
-        val bytes = MessageDigest.getInstance("SHA-256").digest(password.toByteArray())
-        return String.format("%064x", java.math.BigInteger(1, bytes))
+        return BCrypt.withDefaults().hashToString(4, password.toCharArray())
     }
 }

@@ -44,7 +44,7 @@ dependencies {
     // Ejemplo para H2 (base de datos en memoria, útil para pruebas/desarrollo)
     implementation("com.h2database:h2:2.2.224")
     // Ejemplo para PostgreSQL (más común en producción)
-    // implementation("org.postgresql:postgresql:<version_postgresql>")
+    implementation("org.postgresql:postgresql:42.7.3")
     // Ejemplo para SQLite
     // implementation("org.xerial:sqlite-jdbc:<version_sqlite>")
 
@@ -62,7 +62,7 @@ dependencies {
     // implementation("io.ktor:ktor-client-core-jvm:2.3.12")
     // implementation("io.ktor:ktor-client-cio-jvm:2.3.12") // Motor cliente
     // implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
-
+    implementation("at.favre.lib:bcrypt:0.10.2")
 }
 
 tasks.test {

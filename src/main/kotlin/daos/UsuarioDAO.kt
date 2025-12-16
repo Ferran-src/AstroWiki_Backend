@@ -1,7 +1,7 @@
 package org.example.daos
 
-import org.example.models.Usuario // Asegúrate de tener tu data class Usuario
-import org.example.database.Usuarios // Tu objeto Table de Exposed
+import org.example.models.Usuario
+import org.example.database.Usuarios
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.selectAll
@@ -30,26 +30,13 @@ object UsuarioDAO {
         val insertedId = Usuarios.insert {
             it[nombreUsuario] = usuario.nombreUsuario
             it[correo] = usuario.correo
-            it[contraseña] = usuario.contraseña // Asegúrate de hashear antes de llamar a create
+            it[contraseña] = usuario.contraseña
             // fecha_registro se asigna por defecto en la BD
             it[rol] = usuario.rol
         } get Usuarios.id // Obtiene el ID generado
 
         // Retorna el usuario con el ID asignado por la base de datos
         usuario.copy(idUsuario = insertedId.value)
-    }
-
-    fun update(id: Int, usuario: Usuario): Boolean = transaction {
-        // UPDATE usuarios SET nombre_usuario = ?, correo = ?, rol = ? WHERE id_usuario = ?;
-        // (No se actualiza la contraseña ni la fecha de registro normalmente aquí)
-        val updatedRows = Usuarios.update({ Usuarios.id eq id }) {
-            it[nombreUsuario] = usuario.nombreUsuario
-            it[correo] = usuario.correo
-            // Importante: No se actualiza 'contraseña' en un update genérico de perfil
-            // it[contraseña] = usuario.contraseña // <-- Normalmente NO
-            it[rol] = usuario.rol // Asigna rol o valor por defecto
-        }
-        updatedRows > 0 // Retorna true si se actualizó al menos una fila
     }
 
     fun delete(id: Int): Boolean = transaction {

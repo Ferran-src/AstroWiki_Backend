@@ -2,12 +2,16 @@ package org.example.database
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import io.github.cdimascio.dotenv.Dotenv
 import io.github.cdimascio.dotenv.dotenv
 import org.jetbrains.exposed.sql.Database
 
 
 object DatabaseFactory {
-    private val dotenv = dotenv()
+    private val dotenv = dotenv(){
+        filename = "astroEnv.env"
+        directory = "${System.getProperty("user.dir")}"
+    }
 
     fun init() {
         val config = HikariConfig().apply {
