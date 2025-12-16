@@ -4,7 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.time.LocalDateTime
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 
 @Serializable
 data class Articulo @OptIn(ExperimentalTime::class) constructor(

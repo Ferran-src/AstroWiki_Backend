@@ -15,14 +15,15 @@ fun Route.articuloRoutes() {
     route("/articulos") {
 
         get {
-            //call.respond(service.getAll())
-            call.respondText("Hola")
-            println("🔥 Entrando a GET /articulos")
-            val lista = service.getAll()
-            println("🔥 Resultado: $lista")
-            call.respond(lista)
+            call.respond(service.getAll())
+            //call.respondText("Hola")
+//            println("🔥 Entrando a GET /articulos")
+//            val lista = service.getAll()
+//            println("🔥 Resultado: $lista")
+//            call.respondText(lista.toString())
         }
 
+        //Functional get method. Redundatn because of Dynamic query
         get("{id}") {
             val id = call.parameters["id"]?.toIntOrNull()
                 ?: return@get call.respond(status = HttpStatusCode.BadRequest, "ID inválido")
@@ -30,7 +31,7 @@ fun Route.articuloRoutes() {
             val articulo = service.getById(id)
                 ?: return@get call.respond(status = HttpStatusCode.NotFound, "No encontrado")
 
-            call.respond(articulo)
+            call.respond(articulo.toString())
         }
 
         post {
@@ -39,18 +40,19 @@ fun Route.articuloRoutes() {
             call.respond(mapOf("id" to id))
         }
 
-//        put("{id}") {
-//            val id = call.parameters["id"]?.toIntOrNull()
-//                ?: return@put call.respond(HttpStatusCode.BadRequest, "ID inválido")
-//
-//            val articulo = call.receive<Articulo>()
-//            val ok = service.update(id, articulo)
-//
-//            if (ok) call.respond("Actualizado")
-//            else call.respond(HttpStatusCode.NotFound, "No encontrado")
-//        }
+        put("{id}") {
+            val id = call.parameters["id"]?.toIntOrNull()
+                ?: return@put call.respond(HttpStatusCode.BadRequest, "ID inválido")
 
-        delete("{id}") {
+            val articulo = call.receive<Articulo>()
+            val ok = service.update(id, articulo)
+
+            if (ok) call.respond("Actualizado")
+            else call.respond(HttpStatusCode.NotFound, "No encontrado")
+        }
+
+        //not functional
+        delete("/delete/{id}") {
             val id = call.parameters["id"]?.toIntOrNull()
                 ?: return@delete call.respond(HttpStatusCode.BadRequest, "ID inválido")
 

@@ -27,7 +27,7 @@ class ArticuloDAO {
             it[fechaCreacion] = articulo.fechaCreacion
             it[fechaUltimaEdicion] = articulo.fechaUltimaEdicion
             it[estado] = articulo.estado
-        }[Articulos.id].value  // Use .value to get Int from EntityID<Int>
+        }[Articulos.id]  // Use .value to get Int from EntityID<Int>
     }
 
     fun update(id: Int, articulo: Articulo): Boolean = transaction {
@@ -49,7 +49,7 @@ class ArticuloDAO {
     // Convertir filas (ResultRow) -> Articulo (tu modelo)
     // -----------------------
     private fun rowToArticulo(row: ResultRow) = Articulo(
-        idArticulo = row[Articulos.id].value,
+        idArticulo = row[Articulos.id],
         titulo = row[Articulos.titulo],
         contenido = row[Articulos.contenido],
         fechaCreacion = row[Articulos.fechaCreacion],
