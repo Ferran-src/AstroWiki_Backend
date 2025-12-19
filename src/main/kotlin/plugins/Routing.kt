@@ -18,6 +18,7 @@ fun Application.configureRouting() {
             dynamicQueryRoutes() // Define la ruta para /query
             usuarioRoutes()
             seccionRoutes()
+            seguimientoSeccionesRoutes()
         }
 
         // Ruta raíz u otras rutas que no necesiten un prefijo
