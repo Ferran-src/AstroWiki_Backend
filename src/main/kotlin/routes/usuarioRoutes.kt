@@ -95,7 +95,6 @@ fun Route.usuarioRoutes() {
                         try {
                             val perfilRequest = call.receive<ActualizarPerfilRequest>()
                             if (service.updatePerfilUsuario(id, perfilRequest)) {
-                                val usuarioActualizado = service.getUsuarioById(id)
                                 call.respond(HttpStatusCode.OK, message ="usuarioActualizado")
                             } else {
                                 call.respond(HttpStatusCode.NotFound, "Usuario no encontrado para actualizar perfil")
