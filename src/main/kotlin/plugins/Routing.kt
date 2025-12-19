@@ -17,6 +17,7 @@ fun Application.configureRouting() {
             // imageRoutes() // Define las rutas para /imagenes
             dynamicQueryRoutes() // Define la ruta para /query
             usuarioRoutes()
+            seccionRoutes()
         }
 
         // Ruta raíz u otras rutas que no necesiten un prefijo

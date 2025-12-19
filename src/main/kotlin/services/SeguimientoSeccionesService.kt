@@ -9,6 +9,7 @@ import org.example.daos.UsuarioDAO
 class SeguimientoSeccionesService {
     private val dao = SeguimientoSeccionesDAO
     private val usuarioDao = UsuarioDAO // Instancia del UsuarioDao para validaciones
+    private val seccionDao
 
     fun getAllSeguimientos(): List<SeguimientoSeccion> {
         // Aquí podrías aplicar lógica adicional si es necesario antes de delegar al DAO
