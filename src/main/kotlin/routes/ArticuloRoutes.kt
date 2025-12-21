@@ -51,7 +51,6 @@ fun Route.articuloRoutes() {
             else call.respond(HttpStatusCode.NotFound, "No encontrado")
         }
 
-        //not functional
         delete("/delete/{id}") {
             val id = call.parameters["id"]?.toIntOrNull()
                 ?: return@delete call.respond(HttpStatusCode.BadRequest, "ID inválido")

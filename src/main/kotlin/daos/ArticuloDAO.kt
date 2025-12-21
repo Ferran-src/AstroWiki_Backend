@@ -45,9 +45,7 @@ class ArticuloDAO {
         } > 0
     }
 
-    // -----------------------
-    // Convertir filas (ResultRow) -> Articulo (tu modelo)
-    // -----------------------
+    // Converert rows (ResultRow) -> Articulo (modelo)
     private fun rowToArticulo(row: ResultRow) = Articulo(
         idArticulo = row[Articulos.id],
         titulo = row[Articulos.titulo],
