@@ -23,8 +23,8 @@ fun Route.articuloRoutes() {
 //            call.respondText(lista.toString())
         }
 
-        //Functional get method. Redundatn because of Dynamic query
-        get("{id}") {
+        route("/articulos/{id}") {
+        get {
             val id = call.parameters["id"]?.toIntOrNull()
                 ?: return@get call.respond(status = HttpStatusCode.BadRequest, "ID inválido")
 
@@ -33,6 +33,7 @@ fun Route.articuloRoutes() {
 
             call.respond(articulo.toString())
         }
+            }
 
         post {
             val articulo = call.receive<Articulo>()
