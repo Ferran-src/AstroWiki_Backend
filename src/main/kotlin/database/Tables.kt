@@ -72,6 +72,8 @@ object Posts : Table("posts") {
      val id = integer("id_post").autoIncrement().entityId()
     val titulo = varchar("titulo", 255)
     val contenido = text("contenido")
+    val imagen = varchar("imagen", 255)
+    val like = bool("like")
     val autorId = integer("autor_id").references(Usuarios.id)
     val seccionId = integer("seccion_id").references(Secciones.id, onDelete = ReferenceOption.CASCADE)
     val fechaCreacion = timestamp("fecha_creacion").defaultExpression(CurrentTimestamp)
