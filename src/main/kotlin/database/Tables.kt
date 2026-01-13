@@ -60,29 +60,52 @@ object Secciones : Table("secciones") {
 }
 
 object Posts : Table("posts") {
-     val id = integer("id_post").autoIncrement().entityId()
+    val id = integer("id_post").autoIncrement().entityId()
     val titulo = varchar("titulo", 255)
     val contenido = text("contenido")
+    val imagen = varchar("imagen", 255).nullable()
+
+    /*variable usada para guardar la cantidad de likes de un comentario como dato cache
+    con el fin de evitar contar los likes cada vez que se necesiten
+     */
+    val likeCount = integer("contador_likes").default(0)
     val autorId = integer("autor_id").references(Usuarios.id)
     val seccionId = integer("seccion_id").references(Secciones.id, onDelete = ReferenceOption.CASCADE)
     val fechaCreacion = timestamp("fecha_creacion").defaultExpression(CurrentTimestamp)
+
+    override val primaryKey = PrimaryKey(id)
+}
+
+object PostLikes: Table("comentario_likes") {
+    val postId = integer("post_id").references(Posts.id, onDelete = ReferenceOption.CASCADE)
+    val usuarioId = integer("usuario_id").references(Usuarios.id)
+
+    override val primaryKey = PrimaryKey(ComentarioLikes.usuarioId, comentarioId)
+}
+
+object Comentarios : Table("comentarios") {
+    val id = integer("id_comentario").autoIncrement().entityId()
+    val contenido = text("contenido") // NOT NULL
     val imagen = varchar("imagen", 255).nullable()
+
+    /*variable usada para guardar la cantidad de likes de un comentario como dato cache
+    con el fin de evitar contar los likes cada vez que se necesiten
+     */
+    val likeCount = integer("contador_likes").default(0)
+    val autorId = integer("autor_id").references(Usuarios.id)
+    val postId = integer("post_id").references(Posts.id, onDelete = ReferenceOption.CASCADE)
+    val comentarioPadreId = integer("comentario_padre_id").references(id, onDelete = ReferenceOption.CASCADE)
+    val fechaCreacion = timestamp("fecha_creacion").defaultExpression(CurrentTimestamp)
 
     override val primaryKey = PrimaryKey(id)
 
 }
 
-object Comentarios : Table("comentarios") {
-     val id = integer("id_comentario").autoIncrement().entityId()
-    val contenido = text("contenido") // NOT NULL
-    val autorId = integer("autor_id").references(Usuarios.id)
-    val postId = integer("post_id").references(Posts.id, onDelete = ReferenceOption.CASCADE)
-    val comentarioPadreId = integer("comentario_padre_id").references(id, onDelete = ReferenceOption.CASCADE)
-    val fechaCreacion = timestamp("fecha_creacion").defaultExpression(CurrentTimestamp)
-    val imagen = varchar("imagen", 255).nullable()
+object ComentarioLikes : Table("comentario_likes") {
+    val comentarioId = integer("comentario_id").references(Comentarios.id, onDelete = ReferenceOption.CASCADE)
+    val usuarioId = integer("usuario_id").references(Usuarios.id)
 
-    override val primaryKey = PrimaryKey(id)
-
+    override val primaryKey = PrimaryKey(usuarioId, comentarioId)
 }
 
 object SeguimientosSecciones : Table("seguimientos_secciones") {
