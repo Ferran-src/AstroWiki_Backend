@@ -1,6 +1,10 @@
 package org.example.routes
 // routes/UsuariosRoutes.kt
 import io.ktor.http.*
+import io.ktor.http.content.MultiPartData
+import io.ktor.http.content.PartData
+import io.ktor.http.content.forEachPart
+import io.ktor.http.content.streamProvider
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -90,15 +94,65 @@ fun Route.usuarioRoutes() {
 
             route("/perfil") {
                 put {
+
                     val id = call.parameters["id"]?.toIntOrNull()
                     if (id != null) {
                         try {
-                            val perfilRequest = call.receive<ActualizarPerfilRequest>()
+                            // Recibe la solicitud multipart
+                            val multipartData = call.receive<MultiPartData>()
+
+                            var nombreUsuario: String? = null
+                            var correo: String? = null
+                            var rol: String? = null
+                            var newImageBytes: ByteArray? = null
+                            var newImageMimeType: String? = null
+                            var newImageOriginalFileName: String? = null
+
+                            multipartData.forEachPart { part ->
+                                when (part) {
+                                    is PartData.FileItem -> {
+
+                                        if (part.name == "imagen") {
+                                            newImageOriginalFileName = part.originalFileName
+                                            newImageMimeType = part.contentType?.toString()
+                                            newImageBytes = part.streamProvider().use { it.readAllBytes() }
+                                        }
+                                    }
+                                    is PartData.FormItem -> {
+                                        when (part.name) {
+                                            "nombreUsuario" -> nombreUsuario = part.value
+                                            "correo" -> correo = part.value
+                                            "rol" -> rol = part.value
+                                        }
+                                    }
+                                    else -> {}
+                                }
+                                part.dispose()
+                            }
+
+                            if (nombreUsuario == null || correo == null) {
+                                call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Faltan campos obligatorios: nombreUsuario, correo"))
+                                return@put
+                            }
+
+
+                            val perfilRequest = ActualizarPerfilRequest(
+                                nombreUsuario = nombreUsuario,
+                                correo = correo,
+                                rol = rol,
+                                newImageBytes = newImageBytes,
+                                newImageMimeType = newImageMimeType,
+                                newImageOriginalFileName = newImageOriginalFileName
+                            )
+
+                            // Llama al servicio con el objeto ya construido
                             if (service.updatePerfilUsuario(id, perfilRequest)) {
-                                call.respond(HttpStatusCode.OK, message ="usuarioActualizado")
+                                val usuarioActualizado = service.getUsuarioById(id)
+                                call.respond( usuarioActualizado as Usuario)
                             } else {
                                 call.respond(HttpStatusCode.NotFound, "Usuario no encontrado para actualizar perfil")
                             }
+
                         } catch (e: IllegalArgumentException) {
                             call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
                         } catch (e: Exception) {

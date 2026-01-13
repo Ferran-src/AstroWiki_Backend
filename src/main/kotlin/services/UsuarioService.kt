@@ -4,22 +4,51 @@ package org.example.services
 import at.favre.lib.crypto.bcrypt.BCrypt
 import org.example.daos.UsuarioDAO
 import org.example.models.Usuario
-import java.security.MessageDigest
 
 data class ActualizarPerfilRequest(
     val nombreUsuario: String,
     val correo: String,
-    val rol: String? = null
-)
+    val rol: String? = null,
+    val newImageBytes: ByteArray? = null, // Bytes de la nueva imagen (opcional)
+    val newImageMimeType: String? = null, // MIME Type de la nueva imagen (opcional)
+    val newImageOriginalFileName: String? = null) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ActualizarPerfilRequest
+
+        if (nombreUsuario != other.nombreUsuario) return false
+        if (correo != other.correo) return false
+        if (rol != other.rol) return false
+        if (!newImageBytes.contentEquals(other.newImageBytes)) return false
+        if (newImageMimeType != other.newImageMimeType) return false
+        if (newImageOriginalFileName != other.newImageOriginalFileName) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = nombreUsuario.hashCode()
+        result = 31 * result + correo.hashCode()
+        result = 31 * result + (rol?.hashCode() ?: 0)
+        result = 31 * result + (newImageBytes?.contentHashCode() ?: 0)
+        result = 31 * result + (newImageMimeType?.hashCode() ?: 0)
+        result = 31 * result + (newImageOriginalFileName?.hashCode() ?: 0)
+        return result
+    }
+}
 
 // Data class para recibir datos de cambio de contraseña
 data class CambiarContrasenaRequest(
     val nuevaContrasena: String,
     val contrasenaActual: String? = null
 )
+const val UPLOAD_DIR_PATH = "./uploads"
 
 class UsuarioService {
     private val dao = UsuarioDAO
+    private val imagenService = ImagenService(UPLOAD_DIR_PATH) // Inyecta la ruta base
 
     fun getUsuarioById(id: Int): Usuario? {
         if (id <= 0) {
@@ -48,8 +77,7 @@ class UsuarioService {
             dao.findByCorreo(correo) ?: return null
 
         // 2. Comparar la contraseña ingresada con el hash almacenado
-        // Asumiendo que la contraseña almacenada en la base de datos es un hash BCrypt.
-        // El método BCrypt.verify() compara el texto plano con el hash.
+
         val passwordVerificationResult = BCrypt.verifyer().verify(
             contrasenaPlana.toCharArray(),
             usuario.contraseña // El hash almacenado
@@ -59,11 +87,8 @@ class UsuarioService {
             // Las contraseñas coinciden, autenticación exitosa.
             // Devolvemos el usuario (idealmente sin la contraseña en la respuesta).
             // Podrías devolver solo el ID o un objeto específico para autenticación (como un token).
-            // Por simplicidad del ejemplo, devolvemos el objeto Usuario completo (menos la contraseña).
-            // En la práctica, excluyes la contraseña del objeto devuelto o usas un DTO diferente.
-            return usuario.copy(contraseña = "") // O no incluir la contraseña en el modelo de respuesta
+            return usuario.copy(contraseña = "")
         } else {
-            // La contraseña no coincide.
             return null
         }
     }
@@ -85,7 +110,6 @@ class UsuarioService {
         return dao.create(usuarioConHash)
     }
 
-    // Metodo para actualizar el perfil (sin contraseña)
     fun updatePerfilUsuario(id: Int, request: ActualizarPerfilRequest): Boolean {
         if (id <= 0) {
             throw IllegalArgumentException("ID de usuario inválido para actualización de perfil: $id")
@@ -106,7 +130,36 @@ class UsuarioService {
             }
         }
 
-        return dao.updateProfile(id, request.nombreUsuario, request.correo, request.rol)
+        var updatedImageUrl: String? = usuarioExistente.imagen
+        var success = true
+
+        // --- Manejo de la Imagen ---
+        if (request.newImageBytes != null && request.newImageOriginalFileName != null) {
+            // 1. Eliminar la imagen antigua si existía y se va a reemplazar
+            if (usuarioExistente.imagen != null) {
+                imagenService.deleteImageByRelativePath(usuarioExistente.imagen)
+            }
+            try {
+                updatedImageUrl = imagenService.saveImageAndGetRelativePath(
+                    request.newImageBytes,
+                    request.newImageOriginalFileName,
+                    request.newImageMimeType,
+                    TipoEntidad.USUARIO
+                )
+            } catch (e: Exception) {
+                updatedImageUrl = usuarioExistente.imagen
+                success = false
+            }
+        } else if (request.newImageBytes == null && request.newImageOriginalFileName == null && usuarioExistente.imagen != null) {
+            updatedImageUrl = usuarioExistente.imagen
+        }
+
+
+
+        // Llama al dao.update, que manejará todos los campos, incluida la imagen
+        val dbUpdateSuccess = dao.updateProfile(id, nombreUsuario =  request.nombreUsuario, correo =  request.correo,request.rol, updatedImageUrl)
+
+        return success && dbUpdateSuccess
     }
 
     // Metodo para cambiar la contraseña

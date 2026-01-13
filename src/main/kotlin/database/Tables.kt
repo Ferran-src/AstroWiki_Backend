@@ -14,6 +14,7 @@ object Usuarios : Table("usuarios") {
     val contraseña = varchar("contraseña", 255) // Considera hashing
     val fechaRegistro = timestamp("fecha_registro").defaultExpression(CurrentTimestamp)
     val rol = varchar("rol", 10).default("lector")
+    val imagen = varchar("imagen", 255).nullable()
 
     override val primaryKey = PrimaryKey(id)
 }
@@ -45,17 +46,6 @@ object ArticulosCategorias : Table("articulos_categorias") {
     override val primaryKey = PrimaryKey(articuloId, categoriaId)
 }
 
-object Imagenes : Table("imagenes") {
-    val id = integer("id_imagen").autoIncrement().entityId()
-    val titulo = varchar("titulo", 255).nullable()
-    val descripcion = text("descripcion").nullable()
-    val url = varchar("url", 500) // NOT NULL
-    val fechaSubida = timestamp("fecha_subida").defaultExpression(CurrentTimestamp)
-    val articuloId = integer("articulo_id").references(Articulos.id, onDelete = ReferenceOption.CASCADE)
-
-    override val primaryKey = PrimaryKey(id)
-
-}
 
 object Secciones : Table("secciones") {
      val id = integer("id_seccion").autoIncrement().entityId()
@@ -63,6 +53,7 @@ object Secciones : Table("secciones") {
     val descripcion = text("descripcion").nullable()
     val creadorId = integer("creador_id").references(Usuarios.id)
     val fechaCreacion = timestamp("fecha_creacion").defaultExpression(CurrentTimestamp)
+    val imagen = varchar("imagen", 255).nullable()
 
     override val primaryKey = PrimaryKey(id)
 
@@ -75,6 +66,7 @@ object Posts : Table("posts") {
     val autorId = integer("autor_id").references(Usuarios.id)
     val seccionId = integer("seccion_id").references(Secciones.id, onDelete = ReferenceOption.CASCADE)
     val fechaCreacion = timestamp("fecha_creacion").defaultExpression(CurrentTimestamp)
+    val imagen = varchar("imagen", 255).nullable()
 
     override val primaryKey = PrimaryKey(id)
 
@@ -87,6 +79,7 @@ object Comentarios : Table("comentarios") {
     val postId = integer("post_id").references(Posts.id, onDelete = ReferenceOption.CASCADE)
     val comentarioPadreId = integer("comentario_padre_id").references(id, onDelete = ReferenceOption.CASCADE)
     val fechaCreacion = timestamp("fecha_creacion").defaultExpression(CurrentTimestamp)
+    val imagen = varchar("imagen", 255).nullable()
 
     override val primaryKey = PrimaryKey(id)
 

@@ -53,7 +53,9 @@ object UsuarioDAO {
             correo = row[Usuarios.correo],
             contraseña = row[Usuarios.contraseña],
             fechaRegistro = row[Usuarios.fechaRegistro].toString(),
-            rol = row[Usuarios.rol]
+            rol = row[Usuarios.rol],
+            imagen = row[Usuarios.imagen].takeIf { !it.isNullOrEmpty() }
+
         )
     }
     fun updatePassword(id: Int, hashedPassword: String): Boolean = transaction {
@@ -63,13 +65,14 @@ object UsuarioDAO {
         updatedRows > 0
     }
 
-    // Método para actualizar perfil (sin tocar contraseña)
-    fun updateProfile(id: Int, nombreUsuario: String, correo: String, rol: String?): Boolean = transaction {
+    fun updateProfile(id: Int, nombreUsuario: String, correo: String, rol: String?, imagen: String?): Boolean = transaction {
         val updatedRows = Usuarios.update({ Usuarios.id eq id }) {
             it[Usuarios.nombreUsuario] = nombreUsuario
             it[Usuarios.correo] = correo
             if (rol != null) it[Usuarios.rol] = rol
-            // No se actualiza la contraseña
+            if (imagen.isNullOrEmpty()) {
+                it[Usuarios.imagen] = imagen
+            }
         }
         updatedRows > 0
     }

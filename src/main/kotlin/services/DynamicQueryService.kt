@@ -103,7 +103,6 @@ class DynamicQueryService {
         "categorias" -> Categorias
         "posts" -> Posts
         "comentarios" -> Comentarios
-        "imagenes" -> Imagenes
         "secciones" -> Secciones
         "seguimientos_secciones" -> SeguimientosSecciones
         "articulos_categorias" -> ArticulosCategorias
@@ -153,17 +152,7 @@ class DynamicQueryService {
                 else -> throw IllegalArgumentException("Campo no encontrado en ArticulosCategorias: $fieldName")
             }
         }
-        else if (table is Imagenes) {
-            return when (fieldName) {
-                "id_imagen" -> Imagenes.id
-                "titulo" -> Imagenes.titulo
-                "descripcion" -> Imagenes.descripcion
-                "url" -> Imagenes.url
-                "fecha_subida" -> Imagenes.fechaSubida
-                "articulo_id" -> Imagenes.articuloId
-                else -> throw IllegalArgumentException("Campo no encontrado en Imagenes: $fieldName")
-            }
-        }
+
         else if (table is Secciones) {
             return when (fieldName) {
                 "id_seccion" -> Secciones.id

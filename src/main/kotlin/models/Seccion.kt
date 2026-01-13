@@ -10,5 +10,6 @@ data class Seccion(
     val titulo: String,
     val descripcion: String?,
     @SerialName("creador_id") val creadorId: Int?, // Puede ser null si no tiene creador fijo
-    @SerialName("fecha_creacion") val fechaCreacion: String // o LocalDateTime
+    @SerialName("fecha_creacion") val fechaCreacion: String ,// o LocalDateTime
+    val imagen: String?
 )

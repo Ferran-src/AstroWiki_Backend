@@ -11,5 +11,6 @@ data class Usuario(
     val correo: String,
     val contraseña: String, // Cuidado con serializar contraseñas en respuestas de API
     @SerialName("fecha_registro") val fechaRegistro: String, // o LocalDateTime
-    val rol: String // o un enum class ROL si se define
+    val rol: String,
+    val imagen: String? // o un enum class ROL si se define
 )
