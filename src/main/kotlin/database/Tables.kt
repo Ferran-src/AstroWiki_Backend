@@ -69,6 +69,7 @@ object Posts : Table("posts") {
     con el fin de evitar contar los likes cada vez que se necesiten
      */
     val likeCount = integer("contador_likes").default(0)
+    val comentarioCount = integer("contador_comentario").default(0)
     val autorId = integer("autor_id").references(Usuarios.id)
     val seccionId = integer("seccion_id").references(Secciones.id, onDelete = ReferenceOption.CASCADE)
     val fechaCreacion = timestamp("fecha_creacion").defaultExpression(CurrentTimestamp)
@@ -76,11 +77,11 @@ object Posts : Table("posts") {
     override val primaryKey = PrimaryKey(id)
 }
 
-object PostLikes: Table("comentario_likes") {
+object PostLikes: Table("posts_likes") {
     val postId = integer("post_id").references(Posts.id, onDelete = ReferenceOption.CASCADE)
     val usuarioId = integer("usuario_id").references(Usuarios.id)
 
-    override val primaryKey = PrimaryKey(ComentarioLikes.usuarioId, comentarioId)
+    override val primaryKey = PrimaryKey(postId, usuarioId)
 }
 
 object Comentarios : Table("comentarios") {
@@ -101,7 +102,7 @@ object Comentarios : Table("comentarios") {
 
 }
 
-object ComentarioLikes : Table("comentario_likes") {
+object ComentarioLikes : Table("comentarios_likes") {
     val comentarioId = integer("comentario_id").references(Comentarios.id, onDelete = ReferenceOption.CASCADE)
     val usuarioId = integer("usuario_id").references(Usuarios.id)
 
