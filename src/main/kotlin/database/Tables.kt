@@ -4,6 +4,7 @@ package org.example.database
 import org.jetbrains.exposed.sql.javatime.CurrentTimestamp
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.javatime.timestamp
 
 //Configuracion de las tablas para exposed
@@ -21,11 +22,11 @@ object Usuarios : Table("usuarios") {
 
 
 object Articulos : Table("articulos") {
-    val id = integer("id_articulo").autoIncrement().entityId()
+    val id = integer("id_articulo").autoIncrement()
     val titulo = varchar("titulo", 255)
     val contenido = text("contenido")
-    val fechaCreacion = timestamp("fecha_creacion").defaultExpression(CurrentTimestamp)
-    val fechaUltimaEdicion = timestamp("fecha_ultima_edicion").defaultExpression(CurrentTimestamp)
+    val fechaCreacion = datetime("fecha_creacion")
+    val fechaUltimaEdicion = datetime("fecha_ultima_edicion")
     val estado = varchar("estado", 10).default("activo")
     override val primaryKey = PrimaryKey(id)
 

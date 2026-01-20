@@ -10,7 +10,7 @@ fun Application.configureRouting() {
         // Agrupar rutas bajo un prefijo común es una buena práctica
         route("/api/v1") {
             // Llama a las funciones que definen rutas específicas
-           // articuloRoutes() // Define las rutas para /articulos
+           articuloRoutes() // Define las rutas para /articulos
            // usuarioRoutes()  // Define las rutas para /usuarios
            // categoriaRoutes() // Define las rutas para /categorias
             // forumRoutes() // Define las rutas para /foro
