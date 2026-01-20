@@ -11,7 +11,6 @@ class SeccionesService {
 
     fun getAllSeccionesWithCreator(): List<Seccion> {
 
-        // verificar permisos del usuario autenticado.
         return dao.findAllWithCreator()
     }
 
@@ -26,7 +25,7 @@ class SeccionesService {
 
         validateSeccion(seccion, isUpdate = false)
 
-        val creador = usuarioDao.findById(seccion.creadorId)
+        val creador = usuarioDao.findById(seccion.creadorId!! )
         if (creador == null) {
             throw IllegalArgumentException("El usuario creador con ID ${seccion.creadorId} no existe.")
         }
@@ -39,17 +38,12 @@ class SeccionesService {
         if (id <= 0) {
             throw IllegalArgumentException("ID de sección inválido para actualización: $id")
         }
-        // 2. Validar datos de entrada
         validateSeccion(seccion, isUpdate = true)
 
-        // 3. Verificar si la sección existe
-        val seccionExistente = dao.findByIdWithCreator(id) ?: // Opcional: Lanzar una excepción específica
-
-        return false
+        val seccionExistente = dao.findByIdWithCreator(id) ?: return false
 
         //TODO solo creador puede actualizar
 
-        // 5. Delegar al DAO para actualizar
         return dao.update(id, seccion)
     }
 
@@ -58,18 +52,15 @@ class SeccionesService {
         if (id <= 0) {
             throw IllegalArgumentException("ID de sección inválido para eliminación: $id")
         }
-        // Verificar dependencias (¿tiene posts, usuarios suscritos, etc.?)
-        // Si tiene dependencias, decidir si se permite borrar o se marca como inactiva.
 
         return dao.delete(id)
     }
 
     private fun validateSeccion(seccion: Seccion, isUpdate: Boolean) {
-        if (!isUpdate && seccion.titulo.isBlank()) { // titulo es obligatorio al crear
+        if (!isUpdate && seccion.titulo.isBlank()) {
             throw IllegalArgumentException("El título de la sección es obligatorio.")
         }
-        // Añadir más validaciones según sea necesario (longitud del título, contenido de la descripción, etc.)
-        if (seccion.creadorId <= 0) {
+        if (seccion.creadorId!! <= 0) {
             throw IllegalArgumentException("El ID del creador debe ser un número positivo.")
         }
     }

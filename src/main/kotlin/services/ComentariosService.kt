@@ -1,14 +1,9 @@
 package org.example.services
 
-// src/main/kotlin/org/example/astrowiki/services/ComentariosService.kt
-
 import org.example.daos.ComentarioDAO
 import org.example.models.Comentario
-import org.example.daos.UsuarioDAO // Importa UsuarioDao para validaciones
-// import org.example.astrowiki.daos.PostDao // <-- COMENTADO/ELIMINADO
-import org.example.services.TipoEntidad
-import org.example.models.Usuario // Importa el modelo Usuario si es necesario
-// import org.example.astrowiki.models.Post // <-- COMENTADO/ELIMINADO
+import org.example.daos.UsuarioDAO
+
 
 class ComentariosService {
     private val dao = ComentarioDAO
@@ -47,9 +42,7 @@ class ComentariosService {
         validateComentario(comentario, isUpdate = false)
 
         val autor = usuarioDao.findById(comentario.autorId)
-        if (autor == null) {
-            throw IllegalArgumentException("El usuario autor con ID ${comentario.autorId} no existe.")
-        }
+            ?: throw IllegalArgumentException("El usuario autor con ID ${comentario.autorId} no existe.")
 
         // 3. Verificar si el post existe
         // val post = postDao.findById(comentario.postId)
@@ -59,9 +52,7 @@ class ComentariosService {
 
         if (comentario.comentarioPadreId != null) {
             val comentarioPadre = dao.findById(comentario.comentarioPadreId)
-            if (comentarioPadre == null) {
-                throw IllegalArgumentException("El comentario padre con ID ${comentario.comentarioPadreId} no existe.")
-            }
+                ?: throw IllegalArgumentException("El comentario padre con ID ${comentario.comentarioPadreId} no existe.")
 
         }
 

@@ -53,12 +53,10 @@ class ImagenService(private val uploadDirBase: String) {
         }
     }
 
-    // Función para construir la ruta absoluta a partir de una ruta relativa
     private fun buildAbsoluteImagePath(relativePath: String): String {
         return File(uploadDirBase, relativePath).absolutePath
     }
 
-    // Función para construir la ruta relativa a partir del nombre de archivo y la subcarpeta
     private fun buildRelativeImagePath(fileName: String, subfolder: String = ""): String {
         return if (subfolder.isNotEmpty()) {
             "$subfolder/$fileName"

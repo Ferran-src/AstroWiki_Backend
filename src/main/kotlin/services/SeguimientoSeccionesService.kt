@@ -20,9 +20,7 @@ class SeguimientoSeccionesService {
         if (usuarioId <= 0) {
             throw IllegalArgumentException("ID de usuario inválido: $usuarioId")
         }
-        // if (usuarioDao.findById(usuarioId) == null) {
-        //     throw EntityNotFoundException("Usuario con ID $usuarioId no encontrado.")
-        // }
+
         return dao.findByUsuarioId(usuarioId)
     }
 
@@ -30,10 +28,7 @@ class SeguimientoSeccionesService {
         if (seccionId <= 0) {
             throw IllegalArgumentException("ID de sección inválido: $seccionId")
         }
-        // if (seccionDao.findByIdWithCreator(seccionId) == null) {
-        //     throw EntityNotFoundException("Sección con ID $seccionId no encontrada.")
-        // }
-        // Delegar al DAO
+
         return dao.findBySeccionId(seccionId)
     }
 
@@ -53,7 +48,6 @@ class SeguimientoSeccionesService {
         seccionDao.findByIdWithCreator(seccionId)
             ?: throw IllegalArgumentException("La sección con ID $seccionId no existe.")
 
-        // 4. Verificar si ya existe el seguimiento (evitar duplicados)
         if (dao.findByUsuarioAndSeccion(usuarioId, seccionId) != null) {
             throw IllegalArgumentException("El usuario con ID $usuarioId ya está siguiendo la sección con ID $seccionId.")
         }

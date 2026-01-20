@@ -16,6 +16,5 @@ class CategoriaService(
 
     fun delete(id: Int): Boolean = dao.delete(id)
 
-    // Método opcional para búsqueda por nombre
     fun getByNombre(nombre: String): Categoria? = dao.getByNombre(nombre)
 }

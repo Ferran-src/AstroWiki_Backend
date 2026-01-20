@@ -9,25 +9,21 @@ import io.ktor.server.routing.*
 import org.example.models.Seccion
 import org.example.services.SeccionesService
 
-fun Route.seccionRoutes() { // Recibe el 'Route' actual como contexto
-    val service = SeccionesService() // Instancia del servicio
+fun Route.seccionRoutes() {
+    val service = SeccionesService()
 
     route("/secciones") {
 
-        // --- Rutas CRUD Estándar ---
-
-        // Obtener todas las secciones con información del creador
         get {
             try {
                 val secciones = service.getAllSeccionesWithCreator()
-                call.respond(secciones) // Devuelve la lista de secciones
+                call.respond(secciones)
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
                 e.printStackTrace()
             }
         }
 
-        // Obtener una sección específica por ID con información del creador
         route("/{id}") {
             get {
                 val id = call.parameters["id"]?.toIntOrNull()
@@ -35,7 +31,7 @@ fun Route.seccionRoutes() { // Recibe el 'Route' actual como contexto
                     try {
                         val seccion = service.getSeccionByIdWithCreator(id)
                         if (seccion != null) {
-                            call.respond(seccion) // Devuelve la sección encontrada
+                            call.respond(seccion)
                         } else {
                             call.respond(HttpStatusCode.NotFound, "Sección no encontrada")
                         }
@@ -50,8 +46,6 @@ fun Route.seccionRoutes() { // Recibe el 'Route' actual como contexto
                 }
             }
 
-            // Crear una nueva sección (dentro de la ruta /{id} - quizás quieras moverlo a la raíz del bloque 'route("/secciones")')
-            // post { ... } // <-- No es común tener POST aquí si el ID es para identificar el recurso a crear
 
             put {
                 val id = call.parameters["id"]?.toIntOrNull()

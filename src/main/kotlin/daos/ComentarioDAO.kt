@@ -1,6 +1,6 @@
 package org.example.daos
 import org.example.models.Comentario
-import org.example.database.Comentarios // Tu objeto Table de Exposed para comentarios
+import org.example.database.Comentarios
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.selectAll
@@ -12,7 +12,6 @@ object ComentarioDAO {
         }
     }
 
-    // Obtener comentarios de un post específico
     fun findByPostId(postId: Int): List<Comentario> = transaction {
         Comentarios.selectAll().where { Comentarios.postId eq postId }.orderBy(Comentarios.fechaCreacion to SortOrder.ASC).map { row ->
             rowToComentario(row)
@@ -25,7 +24,6 @@ object ComentarioDAO {
         }
     }
 
-    // Obtener un comentario específico por ID
     fun findById(id: Int): Comentario? = transaction {
         Comentarios.selectAll().where { Comentarios.id eq id }.firstOrNull()?.let { row ->
             rowToComentario(row)
@@ -56,24 +54,22 @@ object ComentarioDAO {
         updatedRows > 0
     }
 
-    // Eliminar un comentario
     fun delete(id: Int): Boolean = transaction {
         // DELETE FROM comentarios WHERE id_comentario = ?;
         val deletedRows = Comentarios.deleteWhere { Comentarios.id eq id }
         deletedRows > 0
     }
 
-    // Función privada para mapear una fila de la base de datos a la data class Comentario
     private fun rowToComentario(row: ResultRow): Comentario {
         return Comentario(
             idComentario = row[Comentarios.id].value,
             contenido = row[Comentarios.contenido],
-            imagen = row[Comentarios.imagen].takeIf { it != null && !it.isEmpty() }, // Devuelve null si está vacío
-            likeCount = row[Comentarios.likeCount].toString(), // Convierte el INT de la BD a String para el DTO
+            imagen = row[Comentarios.imagen].takeIf { !it.isNullOrEmpty() },
+            likeCount = row[Comentarios.likeCount].toString(),
             autorId = row[Comentarios.autorId],
             postId = row[Comentarios.postId],
-            comentarioPadreId = row[Comentarios.comentarioPadreId], // Puede ser null
-            fechaCreacion = row[Comentarios.fechaCreacion].toString() // o LocalDateTime
+            comentarioPadreId = row[Comentarios.comentarioPadreId],
+            fechaCreacion = row[Comentarios.fechaCreacion].toString()
         )
     }
 }

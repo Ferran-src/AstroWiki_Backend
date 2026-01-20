@@ -9,8 +9,8 @@ data class ActualizarPerfilRequest(
     val nombreUsuario: String,
     val correo: String,
     val rol: String? = null,
-    val newImageBytes: ByteArray? = null, // Bytes de la nueva imagen (opcional)
-    val newImageMimeType: String? = null, // MIME Type de la nueva imagen (opcional)
+    val newImageBytes: ByteArray? = null,
+    val newImageMimeType: String? = null,
     val newImageOriginalFileName: String? = null) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -39,7 +39,6 @@ data class ActualizarPerfilRequest(
     }
 }
 
-// Data class para recibir datos de cambio de contraseña
 data class CambiarContrasenaRequest(
     val nuevaContrasena: String,
     val contrasenaActual: String? = null
@@ -48,7 +47,7 @@ const val UPLOAD_DIR_PATH = "./uploads"
 
 class UsuarioService {
     private val dao = UsuarioDAO
-    private val imagenService = ImagenService(UPLOAD_DIR_PATH) // Inyecta la ruta base
+    private val imagenService = ImagenService(UPLOAD_DIR_PATH)
 
     fun getUsuarioById(id: Int): Usuario? {
         if (id <= 0) {
@@ -72,11 +71,8 @@ class UsuarioService {
     }
 
     fun authenticateUsuario(correo: String, contrasenaPlana: String): Usuario? {
-        // 1. Buscar al usuario por correo
         val usuario =
             dao.findByCorreo(correo) ?: return null
-
-        // 2. Comparar la contraseña ingresada con el hash almacenado
 
         val passwordVerificationResult = BCrypt.verifyer().verify(
             contrasenaPlana.toCharArray(),
@@ -84,9 +80,7 @@ class UsuarioService {
         )
 
         if (passwordVerificationResult.verified) {
-            // Las contraseñas coinciden, autenticación exitosa.
-            // Devolvemos el usuario (idealmente sin la contraseña en la respuesta).
-            // Podrías devolver solo el ID o un objeto específico para autenticación (como un token).
+
             return usuario.copy(contraseña = "")
         } else {
             return null
@@ -116,9 +110,8 @@ class UsuarioService {
         }
         validateNombreUsuarioAndCorreo(request.nombreUsuario, request.correo)
 
-        val usuarioExistente = dao.findById(id) ?: return false // Usuario no encontrado
+        val usuarioExistente = dao.findById(id) ?: return false
 
-        // Verificar unicidad si cambia nombre de usuario o correo
         if (request.nombreUsuario != usuarioExistente.nombreUsuario) {
             if (dao.findByNombreUsuario(request.nombreUsuario) != null) {
                 throw IllegalArgumentException("El nombre de usuario '${request.nombreUsuario}' ya está en uso.")
@@ -135,7 +128,6 @@ class UsuarioService {
 
         // --- Manejo de la Imagen ---
         if (request.newImageBytes != null && request.newImageOriginalFileName != null) {
-            // 1. Eliminar la imagen antigua si existía y se va a reemplazar
             if (usuarioExistente.imagen != null) {
                 imagenService.deleteImageByRelativePath(usuarioExistente.imagen)
             }
@@ -156,13 +148,11 @@ class UsuarioService {
 
 
 
-        // Llama al dao.update, que manejará todos los campos, incluida la imagen
         val dbUpdateSuccess = dao.updateProfile(id, nombreUsuario =  request.nombreUsuario, correo =  request.correo,request.rol, updatedImageUrl)
 
         return success && dbUpdateSuccess
     }
 
-    // Metodo para cambiar la contraseña
     fun cambiarContrasenaUsuario(id: Int, request: CambiarContrasenaRequest): Boolean {
         if (id <= 0) {
             throw IllegalArgumentException("ID de usuario inválido para cambio de contraseña: $id")
@@ -171,7 +161,6 @@ class UsuarioService {
 
         val hashedPassword = hashPassword(request.nuevaContrasena)
 
-        // Actualizar solo la contraseña en el DAO
         return dao.updatePassword(id, hashedPassword)
     }
 
@@ -182,7 +171,6 @@ class UsuarioService {
         if (id <= 0) {
             throw IllegalArgumentException("ID de usuario inválido para eliminación: $id")
         }
-        // Si tiene dependencias, decidir si se permite borrar o se marca como inactivo.
         return dao.delete(id)
     }
 

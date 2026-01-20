@@ -1,5 +1,4 @@
 package org.example.routes
-// routes/UsuariosRoutes.kt
 import io.ktor.http.*
 import io.ktor.http.content.MultiPartData
 import io.ktor.http.content.PartData
@@ -24,7 +23,7 @@ data class LoginRequest(
 data class LoginResponse(
     val message: String,
     val userId: Int? = null
-    // val token: String? = null // <-- Idealmente devolverías un token JWT aquí
+    // val token: String? = null
 )
 
 fun Route.usuarioRoutes() {

@@ -51,7 +51,6 @@ fun Route.postRoutes() {
             }
         }
 
-        // Obtener posts por autor
         get("/autor/{autorId}") {
             val autorId = call.parameters["autorId"]?.toIntOrNull()
                 ?: return@get call.respond(
@@ -140,7 +139,6 @@ fun Route.postRoutes() {
             }
         }
 
-        // Actualizar un post
         put("{id}") {
             val id = call.parameters["id"]?.toIntOrNull()
                 ?: return@put call.respond(
