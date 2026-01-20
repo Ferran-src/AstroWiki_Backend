@@ -103,7 +103,7 @@ object Comentarios : Table("comentarios") {
 
 }
 
-object ComentarioLikes : Table("comentarios_likes") {
+object ComentariosLikes : Table("comentarios_likes") {
     val comentarioId = integer("comentario_id").references(Comentarios.id, onDelete = ReferenceOption.CASCADE)
     val usuarioId = integer("usuario_id").references(Usuarios.id)
 
