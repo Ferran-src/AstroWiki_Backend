@@ -10,8 +10,8 @@ data class Comentario(
     val contenido: String,
     val imagen: String?,
     @SerialName("contador_likes")val likeCount : String,
-    @SerialName("autor_id") val autorId: Int, // Asumiendo no nulo
-    @SerialName("post_id") val postId: Int, // Asumiendo no nulo
-    @SerialName("comentario_padre_id") val comentarioPadreId: Int?, // Puede ser null si es comentario raíz
-    @SerialName("fecha_creacion") val fechaCreacion: String // o LocalDateTime
+    @SerialName("autor_id") val autorId: Int,
+    @SerialName("post_id") val postId: Int,
+    @SerialName("comentario_padre_id") val comentarioPadreId: Int?,
+    @SerialName("fecha_creacion") val fechaCreacion: String
 )

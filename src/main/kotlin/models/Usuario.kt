@@ -6,11 +6,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Usuario(
-    @SerialName("id_usuario") val idUsuario: Int? = null, // Puede ser null si se genera en BD
+    @SerialName("id_usuario") val idUsuario: Int? = null,
     @SerialName("nombre_usuario") val nombreUsuario: String,
     val correo: String,
-    val contraseña: String, // Cuidado con serializar contraseñas en respuestas de API
-    @SerialName("fecha_registro") val fechaRegistro: String, // o LocalDateTime
+    val contraseña: String,
+    @SerialName("fecha_registro") val fechaRegistro: String,
     val rol: String,
-    val imagen: String? // o un enum class ROL si se define
+    val imagen: String?
 )

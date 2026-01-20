@@ -31,21 +31,17 @@ object UsuarioDAO {
             it[nombreUsuario] = usuario.nombreUsuario
             it[correo] = usuario.correo
             it[contraseña] = usuario.contraseña
-            // fecha_registro se asigna por defecto en la BD
             it[rol] = usuario.rol
-        } get Usuarios.id // Obtiene el ID generado
+        } get Usuarios.id
 
-        // Retorna el usuario con el ID asignado por la base de datos
         usuario.copy(idUsuario = insertedId.value)
     }
 
     fun delete(id: Int): Boolean = transaction {
-        // DELETE FROM usuarios WHERE id_usuario = ?;
         val deletedRows = Usuarios.deleteWhere { Usuarios.id eq id }
-        deletedRows > 0 // Retorna true si se eliminó al menos una fila
+        deletedRows > 0
     }
 
-    // Función privada para mapear una fila de la base de datos a la data class Usuario
     private fun rowToUsuario(row: ResultRow): Usuario {
         return Usuario(
             idUsuario = row[Usuarios.id].value,
