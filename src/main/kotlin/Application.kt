@@ -17,5 +17,5 @@ fun main() {
 }
 fun Application.module() {
     DatabaseFactory.init()
-    configureRouting()       // Registra las rutas (endpoints)
+    configureRouting()
 }

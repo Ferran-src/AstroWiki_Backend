@@ -7,16 +7,16 @@ import org.example.routes.*
 
 fun Application.configureRouting() {
     routing {
-        // Agrupar rutas bajo un prefijo común es una buena práctica
         route("/api/v1") {
-            // Llama a las funciones que definen rutas específicas
-           articuloRoutes() // Define las rutas para /articulos
-           // usuarioRoutes()  // Define las rutas para /usuarios
-           // categoriaRoutes() // Define las rutas para /categorias
-            // forumRoutes() // Define las rutas para /foro
-            // imageRoutes() // Define las rutas para /imagenes
-            dynamicQueryRoutes() // Define la ruta para /query
+           articuloRoutes()
             usuarioRoutes()
+            categoriaRoutes()
+            articuloCategoriaRoutes()
+            comentarioRoutes()
+            postRoutes()
+            postLikesRoutes()
+            comentarioLikesRoutes()
+            dynamicQueryRoutes()
             seccionRoutes()
             seguimientoSeccionesRoutes()
         }
