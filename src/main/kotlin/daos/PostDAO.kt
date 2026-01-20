@@ -43,17 +43,14 @@ class PostDAO {
     }
 
     fun create(post: Post): Int = transaction {
-        // Si la fecha no viene, usar la fecha actual
-        val fechaCreacionnew = post.fechaCreacion ?: LocalDateTime.now().toString()
+
 
         Posts.insert {
             it[titulo] = post.titulo
             it[contenido] = post.contenido
             it[imagen] = post.imagen
-            it[like] = post.like
             it[autorId] = post.autorId
             it[seccionId] = post.seccionId
-            it[fechaCreacion] = LocalDateTime.parse(fechaCreacionnew)
         }[Posts.id].value
     }
 
@@ -62,7 +59,6 @@ class PostDAO {
             row[titulo] = post.titulo
             row[contenido] = post.contenido
             row[imagen] = post.imagen
-            row[like] = post.like
             row[autorId] = post.autorId
             row[seccionId] = post.seccionId
         }
