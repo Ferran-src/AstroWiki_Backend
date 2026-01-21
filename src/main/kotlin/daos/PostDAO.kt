@@ -6,7 +6,6 @@ import org.example.models.Post
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.time.LocalDateTime
 
 class PostDAO {
 
@@ -35,7 +34,7 @@ class PostDAO {
             .map { rowToPost(it) }
     }
 
-    fun searchByTitulo(query: String): List<Post> = transaction {
+    fun getByTitulo(query: String): List<Post> = transaction {
         Posts
             .selectAll().where { Posts.titulo like "%$query%" }
             .orderBy(Posts.fechaCreacion to SortOrder.DESC)
@@ -43,17 +42,12 @@ class PostDAO {
     }
 
     fun create(post: Post): Int = transaction {
-        // Si la fecha no viene, usar la fecha actual
-        val fechaCreacionnew = post.fechaCreacion ?: LocalDateTime.now().toString()
-
         Posts.insert {
             it[titulo] = post.titulo
             it[contenido] = post.contenido
             it[imagen] = post.imagen
-            it[like] = post.like
             it[autorId] = post.autorId
             it[seccionId] = post.seccionId
-            it[fechaCreacion] = LocalDateTime.parse(fechaCreacionnew)
         }[Posts.id].value
     }
 
@@ -62,16 +56,8 @@ class PostDAO {
             row[titulo] = post.titulo
             row[contenido] = post.contenido
             row[imagen] = post.imagen
-            row[like] = post.like
             row[autorId] = post.autorId
             row[seccionId] = post.seccionId
-        }
-        updateCount > 0
-    }
-
-    fun updateLike(id: Int, like: Boolean): Boolean = transaction {
-        val updateCount = Posts.update({ Posts.id eq id }) { row ->
-            row[Posts.like] = like
         }
         updateCount > 0
     }
@@ -85,14 +71,7 @@ class PostDAO {
         Posts
             .selectAll()
             .orderBy(Posts.fechaCreacion to SortOrder.DESC)
-            .limit(limit, offset.toLong())
-            .map { rowToPost(it) }
-    }
-
-    fun getPostsWithLikes(): List<Post> = transaction {
-        Posts
-            .selectAll().where { Posts.like eq true }
-            .orderBy(Posts.fechaCreacion to SortOrder.DESC)
+            .limit(limit).offset(offset.toLong())
             .map { rowToPost(it) }
     }
 
@@ -110,15 +89,16 @@ class PostDAO {
             .toInt()
     }
 
-    // Método privado para convertir ResultRow a Post
+    // Función privada para convertir ResultRow a Post
     private fun rowToPost(row: ResultRow): Post = Post(
         idPost = row[Posts.id].value,
         titulo = row[Posts.titulo],
         contenido = row[Posts.contenido],
-        imagen = row[Posts.imagen],
-        like = row[Posts.like],
+        imagen = row[Posts.imagen].takeIf { it != null && !it.isEmpty() },
+        likeCount = row[Posts.likeCount],
+        comentarioCount = row[Posts.comentarioCount],
         autorId = row[Posts.autorId],
         seccionId = row[Posts.seccionId],
-        fechaCreacion = row[Posts.fechaCreacion].toString()
+        fechaCreacion = row[Posts.fechaCreacion].toString(),
     )
 }
