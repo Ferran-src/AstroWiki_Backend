@@ -6,7 +6,6 @@ import org.example.models.Post
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.time.LocalDateTime
 
 class PostDAO {
 
@@ -35,7 +34,7 @@ class PostDAO {
             .map { rowToPost(it) }
     }
 
-    fun searchByTitulo(query: String): List<Post> = transaction {
+    fun getByTitulo(query: String): List<Post> = transaction {
         Posts
             .selectAll().where { Posts.titulo like "%$query%" }
             .orderBy(Posts.fechaCreacion to SortOrder.DESC)
@@ -43,8 +42,6 @@ class PostDAO {
     }
 
     fun create(post: Post): Int = transaction {
-
-
         Posts.insert {
             it[titulo] = post.titulo
             it[contenido] = post.contenido
@@ -65,13 +62,6 @@ class PostDAO {
         updateCount > 0
     }
 
-    fun updateLike(id: Int, like: Boolean): Boolean = transaction {
-        val updateCount = Posts.update({ Posts.id eq id }) { row ->
-            row[Posts.like] = like
-        }
-        updateCount > 0
-    }
-
     fun delete(id: Int): Boolean = transaction {
         val deleteCount = Posts.deleteWhere { Posts.id eq id }
         deleteCount > 0
@@ -81,14 +71,7 @@ class PostDAO {
         Posts
             .selectAll()
             .orderBy(Posts.fechaCreacion to SortOrder.DESC)
-            .limit(limit, offset.toLong())
-            .map { rowToPost(it) }
-    }
-
-    fun getPostsWithLikes(): List<Post> = transaction {
-        Posts
-            .selectAll().where { Posts.like eq true }
-            .orderBy(Posts.fechaCreacion to SortOrder.DESC)
+            .limit(limit).offset(offset.toLong())
             .map { rowToPost(it) }
     }
 
@@ -112,9 +95,10 @@ class PostDAO {
         titulo = row[Posts.titulo],
         contenido = row[Posts.contenido],
         imagen = row[Posts.imagen],
-        like = row[Posts.like],
+        likeCount = row[Posts.likeCount],
+        comentarioCount = row[Posts.comentarioCount],
         autorId = row[Posts.autorId],
         seccionId = row[Posts.seccionId],
-        fechaCreacion = row[Posts.fechaCreacion].toString()
+        fechaCreacion = row[Posts.fechaCreacion].toString(),
     )
 }

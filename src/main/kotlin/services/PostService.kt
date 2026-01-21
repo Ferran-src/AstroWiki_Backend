@@ -14,7 +14,7 @@ class PostService(
 
     fun getBySeccionId(seccionId: Int): List<Post> = dao.getBySeccionId(seccionId)
 
-    fun searchByTitulo(query: String): List<Post> = dao.searchByTitulo(query)
+    fun searchByTitulo(query: String): List<Post> = dao.getByTitulo(query)
 
     fun create(post: Post): Int = dao.create(post)
 

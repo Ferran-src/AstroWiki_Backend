@@ -11,6 +11,7 @@ data class Post(
     val imagen: String?,
     val contenido: String,
     @SerialName("contador_likes") val likeCount: Int,
+    @SerialName("contador_comentario") val comentarioCount: Int,
     @SerialName("autor_id") val autorId: Int, // Asumiendo no nulo
     @SerialName("seccion_id") val seccionId: Int, // Asumiendo no nulo
     @SerialName("fecha_creacion") val fechaCreacion: String // o LocalDateTime
