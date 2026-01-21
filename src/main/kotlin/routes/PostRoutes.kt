@@ -1,10 +1,14 @@
 package org.example.routes
 
-import io.ktor.http.HttpStatusCode
+import io.ktor.http.*
+import io.ktor.http.content.MultiPartData
+import io.ktor.http.content.PartData
+import io.ktor.http.content.forEachPart
+import io.ktor.http.content.streamProvider
 import io.ktor.server.application.*
-import io.ktor.server.routing.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import org.example.models.Post
 import org.example.services.PostService
 
@@ -14,270 +18,321 @@ fun Route.postRoutes() {
 
     route("/posts") {
 
-        // Obtener todos los posts
+        // GET /posts
         get {
             try {
-                val posts = service.getAll()
-                call.respond(posts)
+                call.respond(service.getAll())
             } catch (e: Exception) {
                 call.respond(
-                    status = HttpStatusCode.InternalServerError,
-                    mapOf("error" to "Error al obtener posts: ${e.message}")
+                    HttpStatusCode.InternalServerError,
+                    mapOf("error" to "Error interno del servidor")
                 )
+                e.printStackTrace()
             }
         }
 
-        // Obtener un post por ID
-        get("{id}") {
-            val id = call.parameters["id"]?.toIntOrNull()
-                ?: return@get call.respond(
-                    status = HttpStatusCode.BadRequest,
-                    mapOf("error" to "ID inválido")
+        // create post
+        post {
+            try {
+                val multipartData = call.receive<MultiPartData>()
+
+                var titulo: String? = null
+                var contenido: String? = null
+                var autorId: Int? = null
+                var seccionId: Int? = null
+                var fechaCreacion: String? = null
+
+                var newImageBytes: ByteArray? = null
+                var newImageMimeType: String? = null
+                var newImageOriginalFileName: String? = null
+
+                multipartData.forEachPart { part ->
+                    when (part) {
+                        is PartData.FileItem -> {
+                            if (part.name == "imagen") {
+                                newImageOriginalFileName = part.originalFileName
+                                newImageMimeType = part.contentType?.toString()
+                                newImageBytes = part.streamProvider().use { it.readAllBytes() }
+                            }
+                        }
+
+                        is PartData.FormItem -> {
+                            when (part.name) {
+                                "titulo" -> titulo = part.value
+                                "contenido" -> contenido = part.value
+                                "autorId" -> autorId = part.value.toIntOrNull()
+                                "seccionId" -> seccionId = part.value.toIntOrNull()
+                                "fechaCreacion" -> fechaCreacion = part.value
+                            }
+                        }
+
+                        else -> {}
+                    }
+                    part.dispose()
+                }
+
+                if (titulo.isNullOrBlank() || contenido.isNullOrBlank() || autorId == null || seccionId == null) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        mapOf("error" to "Faltan campos obligatorios: titulo, contenido, autorId, seccionId")
+                    )
+                    return@post
+                }
+
+                val nuevoPost = Post(
+                    titulo = titulo!!,
+                    contenido = contenido!!,
+                    imagen = null,
+                    likeCount = 0,
+                    comentarioCount = 0,
+                    autorId = autorId!!,
+                    seccionId = seccionId!!,
+                    fechaCreacion = fechaCreacion ?: java.time.LocalDateTime.now().toString()
                 )
 
-            try {
-                val post = service.getById(id)
+                val id = service.create(
+                    nuevoPost,
+                    newImageBytes,
+                    newImageMimeType,
+                    newImageOriginalFileName
+                )
+
+                call.respond(
+                    HttpStatusCode.Created,
+                    mapOf("id_post" to id)
+                )
+
+            } catch (e: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
+                e.printStackTrace()
+            }
+        }
+
+        route("/{id}") {
+
+            // GET posts por id
+            get {
+                val id = call.parameters["id"]?.toIntOrNull()
                     ?: return@get call.respond(
-                        status = HttpStatusCode.NotFound,
-                        mapOf("error" to "Post no encontrado")
+                        HttpStatusCode.BadRequest,
+                        mapOf("error" to "ID de post inválido")
                     )
 
-                call.respond(post)
-            } catch (e: Exception) {
-                call.respond(
-                    status = HttpStatusCode.InternalServerError,
-                    mapOf("error" to "Error al obtener post: ${e.message}")
-                )
+                try {
+                    val post = service.getById(id)
+                        ?: return@get call.respond(
+                            HttpStatusCode.NotFound,
+                            mapOf("error" to "Post no encontrado")
+                        )
+
+                    call.respond(post)
+                } catch (e: IllegalArgumentException) {
+                    call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
+                } catch (e: Exception) {
+                    call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
+                    e.printStackTrace()
+                }
+            }
+
+            // update post
+            put {
+                val id = call.parameters["id"]?.toIntOrNull()
+                    ?: return@put call.respond(
+                        HttpStatusCode.BadRequest,
+                        mapOf("error" to "ID de post inválido")
+                    )
+
+                try {
+                    val multipartData = call.receive<MultiPartData>()
+
+                    var titulo: String? = null
+                    var contenido: String? = null
+                    var autorId: Int? = null
+                    var seccionId: Int? = null
+                    var fechaCreacion: String? = null
+
+                    var newImageBytes: ByteArray? = null
+                    var newImageMimeType: String? = null
+                    var newImageOriginalFileName: String? = null
+
+                    multipartData.forEachPart { part ->
+                        when (part) {
+                            is PartData.FileItem -> {
+                                if (part.name == "imagen") {
+                                    newImageOriginalFileName = part.originalFileName
+                                    newImageMimeType = part.contentType?.toString()
+                                    newImageBytes = part.streamProvider().use { it.readAllBytes() }
+                                }
+                            }
+
+                            is PartData.FormItem -> {
+                                when (part.name) {
+                                    "titulo" -> titulo = part.value
+                                    "contenido" -> contenido = part.value
+                                    "autorId" -> autorId = part.value.toIntOrNull()
+                                    "seccionId" -> seccionId = part.value.toIntOrNull()
+                                    "fechaCreacion" -> fechaCreacion = part.value
+                                }
+                            }
+
+                            else -> {}
+                        }
+                        part.dispose()
+                    }
+
+                    if (
+                        titulo.isNullOrBlank() ||
+                        contenido.isNullOrBlank() ||
+                        autorId == null ||
+                        seccionId == null
+                    ) {
+                        call.respond(
+                            HttpStatusCode.BadRequest,
+                            mapOf("error" to "Faltan campos obligatorios: titulo, contenido, autorId, seccionId")
+                        )
+                        return@put
+                    }
+
+                    val postExistente = service.getById(id)
+                        ?: return@put call.respond(
+                            HttpStatusCode.NotFound,
+                            mapOf("error" to "Post no encontrado")
+                        )
+
+                    val postActualizado = Post(
+                        idPost = postExistente.idPost,
+                        titulo = titulo!!,
+                        contenido = contenido!!,
+                        imagen = postExistente.imagen, // se reemplaza en el service si llega nueva
+                        likeCount = postExistente.likeCount,
+                        comentarioCount = postExistente.comentarioCount,
+                        autorId = autorId!!,
+                        seccionId = seccionId!!,
+                        fechaCreacion = fechaCreacion ?: postExistente.fechaCreacion
+                    )
+
+                    val ok = service.update(
+                        id,
+                        postActualizado,
+                        newImageBytes,
+                        newImageMimeType,
+                        newImageOriginalFileName
+                    )
+
+                    if (ok) {
+                        val actualizado = service.getById(id)
+                        call.respond(HttpStatusCode.OK, actualizado!!)
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, mapOf("error" to "Post no encontrado"))
+                    }
+
+                } catch (e: IllegalArgumentException) {
+                    call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
+                } catch (e: Exception) {
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        mapOf("error" to "Error interno del servidor")
+                    )
+                    e.printStackTrace()
+                }
+            }
+
+            // DELETE post
+            delete {
+                val id = call.parameters["id"]?.toIntOrNull()
+                    ?: return@delete call.respond(
+                        HttpStatusCode.BadRequest,
+                        mapOf("error" to "ID de post inválido")
+                    )
+
+                try {
+                    val deleted = service.delete(id)
+                    if (deleted) {
+                        call.respond(HttpStatusCode.OK, mapOf("message" to "Post eliminado correctamente"))
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, mapOf("error" to "Post no encontrado"))
+                    }
+                } catch (e: IllegalArgumentException) {
+                    call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
+                } catch (e: Exception) {
+                    call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
+                    e.printStackTrace()
+                }
             }
         }
 
-        // Obtener posts por autor
-        get("/autor/{autorId}") {
-            val autorId = call.parameters["autorId"]?.toIntOrNull()
-                ?: return@get call.respond(
-                    status = HttpStatusCode.BadRequest,
-                    mapOf("error" to "ID de autor inválido")
-                )
+        // GET /posts/autor/{autorId}
+        route("/autor/{autorId}") {
+            get {
+                val autorId = call.parameters["autorId"]?.toIntOrNull()
+                    ?: return@get call.respond(
+                        HttpStatusCode.BadRequest,
+                        mapOf("error" to "ID de autor inválido")
+                    )
 
-            try {
-                val posts = service.getByAutorId(autorId)
-                call.respond(posts)
-            } catch (e: Exception) {
-                call.respond(
-                    status = HttpStatusCode.InternalServerError,
-                    mapOf("error" to "Error al obtener posts por autor: ${e.message}")
-                )
+                try {
+                    call.respond(service.getByAutorId(autorId))
+                } catch (e: IllegalArgumentException) {
+                    call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
+                } catch (e: Exception) {
+                    call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
+                    e.printStackTrace()
+                }
             }
         }
 
-        // Obtener posts por sección
-        get("/seccion/{seccionId}") {
-            val seccionId = call.parameters["seccionId"]?.toIntOrNull()
-                ?: return@get call.respond(
-                    status = HttpStatusCode.BadRequest,
-                    mapOf("error" to "ID de sección inválido")
-                )
+        // GET /posts/seccion/{seccionId}
+        route("/seccion/{seccionId}") {
+            get {
+                val seccionId = call.parameters["seccionId"]?.toIntOrNull()
+                    ?: return@get call.respond(
+                        HttpStatusCode.BadRequest,
+                        mapOf("error" to "ID de sección inválido")
+                    )
 
-            try {
-                val posts = service.getBySeccionId(seccionId)
-                call.respond(posts)
-            } catch (e: Exception) {
-                call.respond(
-                    status = HttpStatusCode.InternalServerError,
-                    mapOf("error" to "Error al obtener posts por sección: ${e.message}")
-                )
+                try {
+                    call.respond(service.getBySeccionId(seccionId))
+                } catch (e: IllegalArgumentException) {
+                    call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
+                } catch (e: Exception) {
+                    call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
+                    e.printStackTrace()
+                }
             }
         }
 
-        // Buscar posts por título (búsqueda parcial)
+        // GET /posts/buscar?q=...
         get("/buscar") {
             val query = call.request.queryParameters["q"]
                 ?: return@get call.respond(
-                    status = HttpStatusCode.BadRequest,
-                    mapOf("error" to "Parámetro de búsqueda 'q' requerido")
+                    HttpStatusCode.BadRequest,
+                    mapOf("error" to "Parámetro 'q' requerido")
                 )
 
             try {
-                val posts = service.searchByTitulo(query)
-                call.respond(posts)
+                call.respond(service.searchByTitulo(query))
+            } catch (e: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
             } catch (e: Exception) {
-                call.respond(
-                    status = HttpStatusCode.InternalServerError,
-                    mapOf("error" to "Error en búsqueda: ${e.message}")
-                )
+                call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
+                e.printStackTrace()
             }
         }
 
-        // Crear un nuevo post
-        post {
-            try {
-                val post = call.receive<Post>()
-
-                // Validar campos requeridos
-                if (post.titulo.isBlank()) {
-                    return@post call.respond(
-                        status = HttpStatusCode.BadRequest,
-                        mapOf("error" to "El título es requerido")
-                    )
-                }
-                if (post.contenido.isBlank()) {
-                    return@post call.respond(
-                        status = HttpStatusCode.BadRequest,
-                        mapOf("error" to "El contenido es requerido")
-                    )
-                }
-
-                val id = service.create(post)
-                call.respond(
-                    status = HttpStatusCode.Created,
-                    mapOf("id_post" to id)
-                )
-            } catch (e: Exception) {
-                call.respond(
-                    status = HttpStatusCode.BadRequest,
-                    mapOf("error" to "Error al crear post: ${e.message}")
-                )
-            }
-        }
-
-        // Actualizar un post
-        put("{id}") {
-            val id = call.parameters["id"]?.toIntOrNull()
-                ?: return@put call.respond(
-                    status = HttpStatusCode.BadRequest,
-                    mapOf("error" to "ID inválido")
-                )
-
-            try {
-                val post = call.receive<Post>()
-
-                // Validar campos requeridos
-                if (post.titulo.isBlank()) {
-                    return@put call.respond(
-                        status = HttpStatusCode.BadRequest,
-                        mapOf("error" to "El título es requerido")
-                    )
-                }
-                if (post.contenido.isBlank()) {
-                    return@put call.respond(
-                        status = HttpStatusCode.BadRequest,
-                        mapOf("error" to "El contenido es requerido")
-                    )
-                }
-
-                val ok = service.update(id, post)
-
-                if (ok) {
-                    call.respond(
-                        status = HttpStatusCode.OK,
-                        mapOf("message" to "Post actualizado correctamente")
-                    )
-                } else {
-                    call.respond(
-                        status = HttpStatusCode.NotFound,
-                        mapOf("error" to "Post no encontrado")
-                    )
-                }
-            } catch (e: Exception) {
-                call.respond(
-                    status = HttpStatusCode.BadRequest,
-                    mapOf("error" to "Error al actualizar post: ${e.message}")
-                )
-            }
-        }
-
-        // Actualizar like de un post
-        patch("{id}/like") {
-            val id = call.parameters["id"]?.toIntOrNull()
-                ?: return@patch call.respond(
-                    status = HttpStatusCode.BadRequest,
-                    mapOf("error" to "ID inválido")
-                )
-
-            try {
-                val likeData = call.receive<Map<String, Boolean>>()
-                val like = likeData["like"] ?: return@patch call.respond(
-                    status = HttpStatusCode.BadRequest,
-                    mapOf("error" to "Campo 'like' requerido")
-                )
-
-                val ok = service.updateLike(id, like)
-
-                if (ok) {
-                    call.respond(
-                        status = HttpStatusCode.OK,
-                        mapOf("message" to "Like actualizado correctamente")
-                    )
-                } else {
-                    call.respond(
-                        status = HttpStatusCode.NotFound,
-                        mapOf("error" to "Post no encontrado")
-                    )
-                }
-            } catch (e: Exception) {
-                call.respond(
-                    status = HttpStatusCode.BadRequest,
-                    mapOf("error" to "Error al actualizar like: ${e.message}")
-                )
-            }
-        }
-
-        // Eliminar un post
-        delete("{id}") {
-            val id = call.parameters["id"]?.toIntOrNull()
-                ?: return@delete call.respond(
-                    status = HttpStatusCode.BadRequest,
-                    mapOf("error" to "ID inválido")
-                )
-
-            try {
-                val ok = service.delete(id)
-
-                if (ok) {
-                    call.respond(
-                        status = HttpStatusCode.OK,
-                        mapOf("message" to "Post eliminado correctamente")
-                    )
-                } else {
-                    call.respond(
-                        status = HttpStatusCode.NotFound,
-                        mapOf("error" to "Post no encontrado")
-                    )
-                }
-            } catch (e: Exception) {
-                call.respond(
-                    status = HttpStatusCode.InternalServerError,
-                    mapOf("error" to "Error al eliminar post: ${e.message}")
-                )
-            }
-        }
-
-        // Obtener posts más recientes (paginación opcional)
+        // GET /posts/recientes
         get("/recientes") {
             val limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 10
             val offset = call.request.queryParameters["offset"]?.toIntOrNull() ?: 0
 
             try {
-                val posts = service.getRecentPosts(limit, offset)
-                call.respond(posts)
+                call.respond(service.getRecentPosts(limit, offset))
+            } catch (e: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
             } catch (e: Exception) {
-                call.respond(
-                    status = HttpStatusCode.InternalServerError,
-                    mapOf("error" to "Error al obtener posts recientes: ${e.message}")
-                )
-            }
-        }
-
-        // Obtener posts con like
-        get("/likes") {
-            try {
-                val posts = service.getPostsWithLikes()
-                call.respond(posts)
-            } catch (e: Exception) {
-                call.respond(
-                    status = HttpStatusCode.InternalServerError,
-                    mapOf("error" to "Error al obtener posts con likes: ${e.message}")
-                )
+                call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
+                e.printStackTrace()
             }
         }
     }

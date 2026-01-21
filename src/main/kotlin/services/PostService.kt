@@ -41,7 +41,7 @@ class PostService {
         return dao.getByTitulo(query)
     }
 
-    fun create(post: Post): Int {
+    fun create(post: Post, newImageBytes: ByteArray? = null, newImageMimeType: String? = null, newImageOriginalFileName: String? = null): Int {
         validatePost(post, isUpdate = false)
 
         val autor = usuarioDao.findById(post.autorId)
@@ -49,19 +49,77 @@ class PostService {
             throw IllegalArgumentException("El autor con ID ${post.autorId} no existe.")
         }
 
-        return dao.create(post)
+        var postWithImage = post
+
+        if (newImageBytes != null && newImageOriginalFileName != null) {
+            try {
+                val relativePath = imagenService.saveImageAndGetRelativePath(
+                    newImageBytes,
+                    newImageOriginalFileName,
+                    newImageMimeType,
+                    TipoEntidad.COMENTARIO
+                )
+                postWithImage = post.copy(imagen = relativePath)
+            } catch (e: Exception) {
+                throw e
+            }
+        }
+
+        return dao.create(postWithImage)
     }
 
-    fun update(id: Int, post: Post): Boolean {
+    fun update(
+        id: Int,
+        post: Post,
+        newImageBytes: ByteArray? = null,
+        newImageMimeType: String? = null,
+        newImageOriginalFileName: String? = null
+    ): Boolean {
+
         if (id <= 0) {
             throw IllegalArgumentException("ID de post inválido para actualización: $id")
         }
 
         validatePost(post, isUpdate = true)
 
-        val existente = dao.getById(id) ?: return false
+        val postExistente = dao.getById(id) ?: return false
 
-        return dao.update(id, post)
+        var postConImagen = post
+
+        //código para reemplazar la imagen asignada al post
+        if (newImageBytes != null && newImageOriginalFileName != null) {
+
+            if (postExistente.imagen != null) {
+                imagenService.deleteImageByRelativePath(postExistente.imagen)
+            }
+
+            try {
+                val relativePath = imagenService.saveImageAndGetRelativePath(
+                    newImageBytes,
+                    newImageOriginalFileName,
+                    newImageMimeType,
+                    TipoEntidad.POST
+                )
+
+                postConImagen = post.copy(imagen = relativePath)
+
+            } catch (e: Exception) {
+                // Fallback: conservar imagen anterior si falla la subida
+                postConImagen = post.copy(imagen = postExistente.imagen)
+            }
+
+        }
+        // Código para eliminar la imagen asignada al post
+        else if (newImageBytes == null && post.imagen == null) {
+
+            if (postExistente.imagen != null) {
+                imagenService.deleteImageByRelativePath(postExistente.imagen)
+            }
+
+            postConImagen = post.copy(imagen = null)
+        }
+
+        return dao.update(id, postConImagen)
     }
 
     fun delete(id: Int): Boolean {
