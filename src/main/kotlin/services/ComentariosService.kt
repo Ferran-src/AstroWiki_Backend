@@ -11,7 +11,7 @@ class ComentariosService {
     private val imagenService = ImagenService(UPLOAD_DIR_PATH)
 
     fun getAllComentarios(): List<Comentario> {
-        // Revisar por comentarios eliminados
+
         return dao.findAll()
     }
 

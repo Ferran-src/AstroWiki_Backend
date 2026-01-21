@@ -19,6 +19,7 @@ fun Application.configureRouting() {
             dynamicQueryRoutes()
             seccionRoutes()
             seguimientoSeccionesRoutes()
+            imagenRoutes()
         }
 
         // Ruta raíz u otras rutas que no necesiten un prefijo

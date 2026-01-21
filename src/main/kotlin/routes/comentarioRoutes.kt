@@ -156,7 +156,6 @@ fun Route.comentarioRoutes() {
 
         post {
             try {
-
                 val multipartData = call.receive<MultiPartData>()
 
                 var contenido: String? = null
