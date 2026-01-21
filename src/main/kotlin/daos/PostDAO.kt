@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class PostDAO {
+object PostDAO {
 
     fun getAll(): List<Post> = transaction {
         Posts.selectAll().map { rowToPost(it) }

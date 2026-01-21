@@ -5,7 +5,7 @@ import org.example.daos.UsuarioDAO
 import org.example.models.Post
 
 class PostService {
-    private val dao: PostDAO = PostDAO()
+    private val dao = PostDAO
     private val usuarioDao: UsuarioDAO = UsuarioDAO
     private val imagenService = ImagenService(UPLOAD_DIR_PATH)
 

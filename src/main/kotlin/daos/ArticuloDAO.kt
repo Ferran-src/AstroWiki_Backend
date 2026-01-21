@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.example.models.Articulo
 import org.jetbrains.exposed.sql.selectAll
 
-class ArticuloDAO {
+object ArticuloDAO {
 
     fun getAll(): List<Articulo> = transaction {
         Articulos.selectAll().map { rowToArticulo(it) }

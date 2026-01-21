@@ -3,9 +3,10 @@ package org.example.services
 import org.example.daos.CategoriaDAO
 import org.example.models.Categoria
 
-class CategoriaService(
+class CategoriaService {
+
     private val dao: CategoriaDAO = CategoriaDAO
-) {
+
     fun getAll(): List<Categoria> = dao.getAll()
 
     fun getById(id: Int): Categoria? = dao.getById(id)

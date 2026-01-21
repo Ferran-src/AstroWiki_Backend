@@ -1,11 +1,6 @@
 package org.example.services
 
-import org.example.daos.PostLikesDao
-import org.example.database.Posts
-import org.jetbrains.exposed.sql.Op
-import org.jetbrains.exposed.sql.SqlExpressionBuilder
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.example.daos.PostLikesDAO
 
 class PostLikesService {
 
@@ -15,18 +10,18 @@ class PostLikesService {
      * false -> quitó like
      */
     fun toggleLike(postId: Int, usuarioId: Int): Boolean {
-        return if (PostLikesDao.exists(postId, usuarioId)) {
-            PostLikesDao.unlike(postId, usuarioId)
+        return if (PostLikesDAO.exists(postId, usuarioId)) {
+            PostLikesDAO.unlike(postId, usuarioId)
             false
         } else {
-            PostLikesDao.like(postId, usuarioId)
+            PostLikesDAO.like(postId, usuarioId)
             true
         }
     }
 
     fun getPostsLikedByUsuario(usuarioId: Int): List<Int> =
-        PostLikesDao.findPostsLikedByUsuario(usuarioId)
+        PostLikesDAO.findPostsLikedByUsuario(usuarioId)
 
     fun getUsuariosWhoLikedPost(postId: Int): List<Int> =
-        PostLikesDao.findUsuariosWhoLikedPost(postId)
+        PostLikesDAO.findUsuariosWhoLikedPost(postId)
 }

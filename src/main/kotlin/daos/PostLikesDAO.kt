@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
-object PostLikesDao {
+object PostLikesDAO {
 
     fun exists(postId: Int, usuarioId: Int): Boolean = transaction {
         PostLikes.selectAll().where {
