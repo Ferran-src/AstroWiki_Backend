@@ -89,12 +89,12 @@ class PostDAO {
             .toInt()
     }
 
-    // Método privado para convertir ResultRow a Post
+    // Función privada para convertir ResultRow a Post
     private fun rowToPost(row: ResultRow): Post = Post(
         idPost = row[Posts.id].value,
         titulo = row[Posts.titulo],
         contenido = row[Posts.contenido],
-        imagen = row[Posts.imagen],
+        imagen = row[Posts.imagen].takeIf { it != null && !it.isEmpty() },
         likeCount = row[Posts.likeCount],
         comentarioCount = row[Posts.comentarioCount],
         autorId = row[Posts.autorId],
