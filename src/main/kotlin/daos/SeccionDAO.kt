@@ -18,7 +18,7 @@ object SeccionDAO {
             .selectAll()
             .map { row ->
                 rowToSeccion(row)
-            }
+            }.toList()
     }
 
     fun findByIdWithCreator(id: Int): Seccion? = transaction {

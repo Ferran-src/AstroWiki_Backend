@@ -11,6 +11,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.example.models.Post
 import org.example.services.PostService
+import org.jetbrains.exposed.dao.id.EntityID
 
 fun Route.postRoutes() {
 
@@ -38,8 +39,8 @@ fun Route.postRoutes() {
 
                 var titulo: String? = null
                 var contenido: String? = null
-                var autorId: Int? = null
-                var seccionId: Int? = null
+                var autorId: EntityID<Int>? = null
+                var seccionId: EntityID<Int>? = null
                 var fechaCreacion: String? = null
 
                 var newImageBytes: ByteArray? = null
@@ -60,8 +61,8 @@ fun Route.postRoutes() {
                             when (part.name) {
                                 "titulo" -> titulo = part.value
                                 "contenido" -> contenido = part.value
-                                "autorId" -> autorId = part.value.toIntOrNull()
-                                "seccionId" -> seccionId = part.value.toIntOrNull()
+                                "autorId" -> autorId = part.value.toIntOrNull() as EntityID<Int>?
+                                "seccionId" -> seccionId = part.value.toIntOrNull() as EntityID<Int>?
                                 "fechaCreacion" -> fechaCreacion = part.value
                             }
                         }
@@ -80,14 +81,14 @@ fun Route.postRoutes() {
                 }
 
                 val nuevoPost = Post(
-                    titulo = titulo!!,
-                    contenido = contenido!!,
+                    titulo = titulo,
+                    contenido = contenido,
                     imagen = null,
                     likeCount = 0,
                     comentarioCount = 0,
-                    autorId = autorId!!,
-                    seccionId = seccionId!!,
-                    fechaCreacion = fechaCreacion ?: java.time.LocalDateTime.now().toString()
+                    autorId = autorId!!.value,
+                    seccionId = seccionId!!.value,
+                    fechaCreacion =  java.time.Instant.now()
                 )
 
                 val id = service.create(
@@ -149,8 +150,8 @@ fun Route.postRoutes() {
 
                     var titulo: String? = null
                     var contenido: String? = null
-                    var autorId: Int? = null
-                    var seccionId: Int? = null
+                    var autorId: EntityID<Int>? = null
+                    var seccionId: EntityID<Int>? = null
                     var fechaCreacion: String? = null
 
                     var newImageBytes: ByteArray? = null
@@ -171,8 +172,8 @@ fun Route.postRoutes() {
                                 when (part.name) {
                                     "titulo" -> titulo = part.value
                                     "contenido" -> contenido = part.value
-                                    "autorId" -> autorId = part.value.toIntOrNull()
-                                    "seccionId" -> seccionId = part.value.toIntOrNull()
+                                    "autorId" -> autorId = part.value.toIntOrNull() as EntityID<Int>?
+                                    "seccionId" -> seccionId = part.value.toIntOrNull() as EntityID<Int>?
                                     "fechaCreacion" -> fechaCreacion = part.value
                                 }
                             }
@@ -203,14 +204,14 @@ fun Route.postRoutes() {
 
                     val postActualizado = Post(
                         idPost = postExistente.idPost,
-                        titulo = titulo!!,
-                        contenido = contenido!!,
+                        titulo = titulo,
+                        contenido = contenido,
                         imagen = postExistente.imagen, // se reemplaza en el service si llega nueva
                         likeCount = postExistente.likeCount,
                         comentarioCount = postExistente.comentarioCount,
-                        autorId = autorId!!,
-                        seccionId = seccionId!!,
-                        fechaCreacion = fechaCreacion ?: postExistente.fechaCreacion
+                        autorId = autorId!!.value,
+                        seccionId = seccionId!!.value,
+                        fechaCreacion = postExistente.fechaCreacion
                     )
 
                     val ok = service.update(

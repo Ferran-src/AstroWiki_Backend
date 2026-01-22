@@ -65,9 +65,9 @@ object ComentarioDAO {
             idComentario = row[Comentarios.id].value,
             contenido = row[Comentarios.contenido],
             imagen = row[Comentarios.imagen].takeIf { !it.isNullOrEmpty() },
-            likeCount = row[Comentarios.likeCount].toString(),
-            autorId = row[Comentarios.autorId],
-            postId = row[Comentarios.postId],
+            likeCount = row[Comentarios.contadorLikes].toString(),
+            autorId = row[Comentarios.autorId].value,
+            postId = row[Comentarios.postId].value,
             comentarioPadreId = row[Comentarios.comentarioPadreId],
             fechaCreacion = row[Comentarios.fechaCreacion].toString()
         )

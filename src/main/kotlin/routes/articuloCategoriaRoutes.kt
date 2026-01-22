@@ -5,8 +5,11 @@ import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import org.example.database.Articulos
+import org.example.database.Categorias
 import org.example.models.ArticuloCategoria
 import org.example.services.ArticuloCategoriaService
+import org.jetbrains.exposed.dao.id.EntityID
 
 fun Route.articuloCategoriaRoutes() {
 
@@ -92,19 +95,20 @@ fun Route.articuloCategoriaRoutes() {
             //verify relation existence
             get{
                 try {
-                    val articuloId = call.request.queryParameters["articuloId"]?.toIntOrNull()
+                    val articuloId = ( call.request.queryParameters["articuloId"]?.toIntOrNull() )
                         ?: return@get call.respond(
                             HttpStatusCode.BadRequest,
                             mapOf("error" to "Falta articuloId")
                         )
-
+                    val articuloEntityID = EntityID(articuloId, Articulos)
                     val categoriaId = call.request.queryParameters["categoriaId"]?.toIntOrNull()
                         ?: return@get call.respond(
                             HttpStatusCode.BadRequest,
                             mapOf("error" to "Falta categoriaId")
                         )
+                    val categoriaEntityID = EntityID(categoriaId, Articulos)
 
-                    val exists = service.exists(articuloId, categoriaId)
+                    val exists = service.exists(articuloEntityID, categoriaEntityID)
                     call.respond(mapOf("exists" to exists))
                 } catch (e: IllegalArgumentException) {
                     call.respond(
@@ -190,8 +194,9 @@ fun Route.articuloCategoriaRoutes() {
                             HttpStatusCode.BadRequest,
                             mapOf("error" to "ID de artículo inválido")
                         )
+                    val articuloEntityID = EntityID(articuloId, Articulos)
 
-                    val deletedCount = service.deleteByArticuloId(articuloId)
+                    val deletedCount = service.deleteByArticuloId(articuloEntityID)
 
                     call.respond(
                         mapOf(
@@ -218,9 +223,14 @@ fun Route.articuloCategoriaRoutes() {
                             HttpStatusCode.BadRequest,
                             mapOf("error" to "ID de artículo inválido")
                         )
+                    val articuloEntityID = EntityID(articuloId, Articulos)
 
                     val categoriasIds = call.receive<List<Int>>()
-                    val result = service.replaceCategoriasForArticulo(articuloId, categoriasIds)
+
+                    val categoriasEntityID: MutableList<EntityID<Int>> = mutableListOf()
+                    categoriasIds.forEach {categoriasEntityID.add(EntityID(it, Categorias))}
+
+                    val result = service.replaceCategoriasForArticulo(articuloEntityID, categoriasEntityID)
 
                     call.respond(
                         mapOf(

@@ -5,6 +5,9 @@ import org.example.daos.SeccionDAO
 import org.example.daos.SeguimientoSeccionesDAO
 import org.example.models.SeguimientoSeccion
 import org.example.daos.UsuarioDAO
+import org.example.database.Secciones
+import org.example.database.Usuarios
+import org.jetbrains.exposed.dao.id.EntityID
 
 class SeguimientoSeccionesService {
     private val dao = SeguimientoSeccionesDAO
@@ -39,16 +42,16 @@ class SeguimientoSeccionesService {
         return dao.findByUsuarioAndSeccion(usuarioId, seccionId)
     }
 
-    fun createSeguimiento(usuarioId: Int, seccionId: Int): SeguimientoSeccion {
+    fun createSeguimiento(usuarioId: EntityID<Int>, seccionId: EntityID<Int>): SeguimientoSeccion {
 
-        validateIds(usuarioId, seccionId)
+        validateIds(usuarioId.value, seccionId.value)
 
-        usuarioDao.findById(usuarioId) ?: throw IllegalArgumentException("El usuario con ID $usuarioId no existe.")
+        usuarioDao.findById(usuarioId.value) ?: throw IllegalArgumentException("El usuario con ID $usuarioId no existe.")
 
-        seccionDao.findByIdWithCreator(seccionId)
+        seccionDao.findByIdWithCreator(seccionId.value)
             ?: throw IllegalArgumentException("La sección con ID $seccionId no existe.")
 
-        if (dao.findByUsuarioAndSeccion(usuarioId, seccionId) != null) {
+        if (dao.findByUsuarioAndSeccion(usuarioId.value, seccionId.value) != null) {
             throw IllegalArgumentException("El usuario con ID $usuarioId ya está siguiendo la sección con ID $seccionId.")
         }
 
@@ -69,7 +72,7 @@ class SeguimientoSeccionesService {
             throw IllegalArgumentException("El usuario con ID ${seguimiento.usuarioId} ya está siguiendo la sección con ID ${seguimiento.seccionId}.")
         }
 
-        return dao.create(seguimiento.usuarioId, seguimiento.seccionId)
+        return dao.create(EntityID(seguimiento.usuarioId, Usuarios), EntityID(seguimiento.seccionId, Secciones))
     }
 
 

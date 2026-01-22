@@ -5,6 +5,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.example.models.Articulo
 import org.jetbrains.exposed.sql.selectAll
+import kotlin.time.ExperimentalTime
 
 object ArticuloDAO {
 
@@ -19,6 +20,7 @@ object ArticuloDAO {
             .singleOrNull()
     }
 
+    @OptIn(ExperimentalTime::class)
     fun create(articulo: Articulo): Int = transaction {
 
         Articulos.insert {
@@ -27,9 +29,10 @@ object ArticuloDAO {
             it[fechaCreacion] = articulo.fechaCreacion
             it[fechaUltimaEdicion] = articulo.fechaUltimaEdicion
             it[estado] = articulo.estado
-        }[Articulos.id]  // Use .value to get Int from EntityID<Int>
+        }[Articulos.id].value // Use .value to get Int from EntityID<Int>
     }
 
+    @OptIn(ExperimentalTime::class)
     fun update(id: Int, articulo: Articulo): Boolean = transaction {
         Articulos.update({ Articulos.id eq id }) { row ->
             row[titulo] = articulo.titulo
@@ -47,7 +50,7 @@ object ArticuloDAO {
 
     // Converert rows (ResultRow) -> Articulo (modelo)
     private fun rowToArticulo(row: ResultRow) = Articulo(
-        idArticulo = row[Articulos.id],
+        idArticulo = row[Articulos.id].value,
         titulo = row[Articulos.titulo],
         contenido = row[Articulos.contenido],
         fechaCreacion = row[Articulos.fechaCreacion],

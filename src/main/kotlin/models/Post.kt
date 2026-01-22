@@ -1,8 +1,10 @@
 package org.example.models
 
 
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+
 
 @Serializable
 data class Post(
@@ -14,5 +16,5 @@ data class Post(
     @SerialName("contador_comentario") val comentarioCount: Int,
     @SerialName("autor_id") val autorId: Int, // Asumiendo no nulo
     @SerialName("seccion_id") val seccionId: Int, // Asumiendo no nulo
-    @SerialName("fecha_creacion") val fechaCreacion: String // o LocalDateTime
+    @SerialName("fecha_creacion") @Contextual val fechaCreacion: java.time.Instant
 )

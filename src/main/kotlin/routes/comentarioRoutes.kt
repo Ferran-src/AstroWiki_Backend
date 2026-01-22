@@ -11,6 +11,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.example.models.Comentario
 import org.example.services.ComentariosService
+import org.jetbrains.exposed.dao.id.EntityID
 import java.time.LocalDateTime
 
 fun Route.comentarioRoutes() {
@@ -60,8 +61,8 @@ fun Route.comentarioRoutes() {
                         val multipartData = call.receive<MultiPartData>()
 
                         var contenido: String? = null
-                        var autorId: Int? = null
-                        var postId: Int? = null
+                        var autorId: EntityID<Int>? = null
+                        var postId: EntityID<Int>? = null
                         var comentarioPadreId: Int? = null
                         var newImageBytes: ByteArray? = null
                         var newImageMimeType: String? = null
@@ -80,8 +81,8 @@ fun Route.comentarioRoutes() {
                                 is PartData.FormItem -> {
                                     when (part.name) {
                                         "contenido" -> contenido = part.value
-                                        "autorId" -> autorId = part.value.toIntOrNull()
-                                        "postId" -> postId = part.value.toIntOrNull()
+                                        "autorId" -> autorId = part.value.toIntOrNull() as EntityID<Int>?
+                                        "postId" -> postId = part.value.toIntOrNull() as EntityID<Int>?
                                         "comentarioPadreId" -> comentarioPadreId = part.value.toIntOrNull()
 
                                     }
@@ -109,8 +110,8 @@ fun Route.comentarioRoutes() {
                             contenido = contenido,
                             imagen = comentarioExistente.imagen,
                             likeCount = comentarioExistente.likeCount,
-                            autorId = autorId!!,
-                            postId = postId!!,
+                            autorId = autorId!!.value,
+                            postId = postId!!.value,
                             comentarioPadreId = comentarioPadreId,
                             fechaCreacion = comentarioExistente.fechaCreacion
                         )
@@ -159,8 +160,8 @@ fun Route.comentarioRoutes() {
                 val multipartData = call.receive<MultiPartData>()
 
                 var contenido: String? = null
-                var autorId: Int? = null
-                var postId: Int? = null
+                var autorId: EntityID<Int>? = null
+                var postId: EntityID<Int>? = null
                 var comentarioPadreId: Int? = null
                 var fechaCreacion: String? = null
                 var newImageBytes: ByteArray? = null
@@ -179,8 +180,8 @@ fun Route.comentarioRoutes() {
                         is PartData.FormItem -> {
                             when (part.name) {
                                 "contenido" -> contenido = part.value
-                                "autorId" -> autorId = part.value.toIntOrNull()
-                                "postId" -> postId = part.value.toIntOrNull()
+                                "autorId" -> autorId = part.value.toIntOrNull() as EntityID<Int>?
+                                "postId" -> postId = part.value.toIntOrNull() as EntityID<Int>?
                                 "comentarioPadreId" -> comentarioPadreId = part.value.toIntOrNull()
                                 "fechaCreacion" -> fechaCreacion = part.value
                             }
@@ -201,8 +202,8 @@ fun Route.comentarioRoutes() {
                     contenido = contenido!!,
                     imagen = null,
                     likeCount = "0",
-                    autorId = autorId!!,
-                    postId = postId!!,
+                    autorId = autorId!!.value,
+                    postId = postId!!.value,
                     comentarioPadreId = comentarioPadreId,
                     fechaCreacion = fechaCreacion ?: LocalDateTime.now().toString(),
 

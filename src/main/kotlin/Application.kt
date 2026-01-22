@@ -6,6 +6,7 @@ import io.ktor.server.netty.*
 import org.example.database.DatabaseFactory
 
 import org.example.plugins.configureRouting
+import org.example.plugins.configureSerialization
 
 fun main() {
     //Iniciacion del server asincrono
@@ -18,4 +19,5 @@ fun main() {
 fun Application.module() {
     DatabaseFactory.init()
     configureRouting()
+    configureSerialization()
 }

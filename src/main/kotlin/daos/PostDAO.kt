@@ -95,10 +95,10 @@ object PostDAO {
         titulo = row[Posts.titulo],
         contenido = row[Posts.contenido],
         imagen = row[Posts.imagen].takeIf { it != null && !it.isEmpty() },
-        likeCount = row[Posts.likeCount],
-        comentarioCount = row[Posts.comentarioCount],
-        autorId = row[Posts.autorId],
-        seccionId = row[Posts.seccionId],
-        fechaCreacion = row[Posts.fechaCreacion].toString(),
+        likeCount = row[Posts.contadorLikes],
+        comentarioCount = row[Posts.contadorComentarios],
+        autorId = row[Posts.autorId].value,
+        seccionId = row[Posts.seccionId].value,
+        fechaCreacion = row[Posts.fechaCreacion],
     )
 }

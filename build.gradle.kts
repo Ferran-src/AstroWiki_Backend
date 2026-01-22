@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.2.20"
+    kotlin("plugin.serialization") version "2.0.0"
 }
 
 group = "org.example"
@@ -15,7 +16,7 @@ dependencies {
     implementation("io.ktor:ktor-server-core-jvm:2.3.12")
 
     implementation("io.ktor:ktor-server-netty-jvm:2.3.12")
-
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
     implementation("io.ktor:ktor-server-content-negotiation-jvm:2.3.12")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm:2.3.12")
 
@@ -40,7 +41,6 @@ dependencies {
     implementation("com.zaxxer:HikariCP:6.3.0")
 
     testImplementation("io.ktor:ktor-server-tests-jvm:2.3.12")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:<version_kotlin>")
 
     // env para las credentiales
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")

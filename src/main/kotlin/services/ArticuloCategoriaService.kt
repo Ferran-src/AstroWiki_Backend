@@ -2,6 +2,7 @@ package org.example.services
 
 import org.example.daos.ArticuloCategoriaDAO
 import org.example.models.ArticuloCategoria
+import org.jetbrains.exposed.dao.id.EntityID
 
 class ArticuloCategoriaService(
     private val dao: ArticuloCategoriaDAO = ArticuloCategoriaDAO
@@ -14,7 +15,7 @@ class ArticuloCategoriaService(
     fun getByCategoriaId(categoriaId: Int): List<ArticuloCategoria> =
         dao.getByCategoriaId(categoriaId)
 
-    fun exists(articuloId: Int, categoriaId: Int): Boolean =
+    fun exists(articuloId: EntityID<Int>, categoriaId: EntityID<Int>): Boolean =
         dao.exists(articuloId, categoriaId)
 
     fun create(relacion: ArticuloCategoria): Boolean =
@@ -26,20 +27,20 @@ class ArticuloCategoriaService(
     fun delete(articuloId: Int, categoriaId: Int): Boolean =
         dao.delete(articuloId, categoriaId)
 
-    fun deleteByArticuloId(articuloId: Int): Int =
+    fun deleteByArticuloId(articuloId: EntityID<Int>): Int =
         dao.deleteByArticuloId(articuloId)
 
     fun deleteByCategoriaId(categoriaId: Int): Int =
         dao.deleteByCategoriaId(categoriaId)
 
-    fun replaceCategoriasForArticulo(articuloId: Int, categoriasIds: List<Int>): Pair<Int, Int> =
+    fun replaceCategoriasForArticulo(articuloId: EntityID<Int>, categoriasIds: List<EntityID<Int>>): Pair<Int, Int> =
         dao.replaceCategoriasForArticulo(articuloId, categoriasIds)
 
     // Utility function: obtener IDs de categorías para un artículo
-    fun getCategoriasIdsForArticulo(articuloId: Int): List<Int> =
+    fun getCategoriasIdsForArticulo(articuloId: Int): List<EntityID<Int>> =
         dao.getCategoriasIdsForArticulo(articuloId)
 
     // Utility function: obtener IDs de artículos para una categoría
-    fun getArticulosIdsForCategoria(categoriaId: Int): List<Int> =
+    fun getArticulosIdsForCategoria(categoriaId: Int): List<EntityID<Int>> =
         dao.getArticulosIdsForCategoria(categoriaId)
 }

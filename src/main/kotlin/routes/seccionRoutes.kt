@@ -17,6 +17,7 @@ fun Route.seccionRoutes() {
         get {
             try {
                 val secciones = service.getAllSeccionesWithCreator()
+
                 call.respond(secciones)
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))

@@ -3,6 +3,7 @@ package org.example.daos
 
 import org.jetbrains.exposed.sql.selectAll
 import org.example.database.PostLikes
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -30,14 +31,14 @@ object PostLikesDAO {
         } > 0
     }
 
-    fun findPostsLikedByUsuario(usuarioId: Int): List<Int> = transaction {
+    fun findPostsLikedByUsuario(usuarioId: Int): List<EntityID<Int>> = transaction {
         PostLikes
             .select(PostLikes.postId)
             .where { PostLikes.usuarioId eq usuarioId }
             .map { it[PostLikes.postId] }
     }
 
-    fun findUsuariosWhoLikedPost(postId: Int): List<Int> = transaction {
+    fun findUsuariosWhoLikedPost(postId: Int): List<EntityID<Int>> = transaction {
         PostLikes
             .select(PostLikes.usuarioId)
             .where { PostLikes.postId eq postId }

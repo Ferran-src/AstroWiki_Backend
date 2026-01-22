@@ -1,6 +1,7 @@
 package org.example.services
 
 import org.example.daos.PostLikesDAO
+import org.jetbrains.exposed.dao.id.EntityID
 
 class PostLikesService {
 
@@ -19,9 +20,9 @@ class PostLikesService {
         }
     }
 
-    fun getPostsLikedByUsuario(usuarioId: Int): List<Int> =
+    fun getPostsLikedByUsuario(usuarioId: Int): List<EntityID<Int>> =
         PostLikesDAO.findPostsLikedByUsuario(usuarioId)
 
-    fun getUsuariosWhoLikedPost(postId: Int): List<Int> =
+    fun getUsuariosWhoLikedPost(postId: Int): List<EntityID<Int>> =
         PostLikesDAO.findUsuariosWhoLikedPost(postId)
 }

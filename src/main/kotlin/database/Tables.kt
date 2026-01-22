@@ -1,118 +1,90 @@
 package org.example.database
 
-
 import org.jetbrains.exposed.sql.javatime.CurrentTimestamp
 import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.javatime.timestamp
 
-//Configuracion de las tablas para exposed
-object Usuarios : Table("usuarios") {
-    val id = integer("id_usuario").autoIncrement().entityId()
+import org.jetbrains.exposed.dao.id.IntIdTable
+
+
+// Usar IntIdTable para entidades con ID primaria autoincremental
+object Usuarios : IntIdTable("usuarios","id_usuario") { // Extiende IntIdTable
     val nombreUsuario = varchar("nombre_usuario", 50).uniqueIndex()
     val correo = varchar("correo", 100).uniqueIndex()
     val contraseña = varchar("contraseña", 255) // Considera hashing
     val fechaRegistro = timestamp("fecha_registro").defaultExpression(CurrentTimestamp)
     val rol = varchar("rol", 10).default("lector")
-    val imagen = varchar("imagen", 255).nullable()
-
-    override val primaryKey = PrimaryKey(id)
+    val imagen = varchar("imagen", 500).nullable() // Aumenté el tamaño si es necesario
 }
 
-
-object Articulos : Table("articulos") {
-    val id = integer("id_articulo").autoIncrement()
+object Articulos : IntIdTable("articulos","id_articulo") { // Extiende IntIdTable
     val titulo = varchar("titulo", 255)
     val contenido = text("contenido")
-    val fechaCreacion = datetime("fecha_creacion")
-    val fechaUltimaEdicion = datetime("fecha_ultima_edicion")
-    val estado = varchar("estado", 10).default("activo")
-    override val primaryKey = PrimaryKey(id)
-
+    val fechaCreacion = timestamp("fecha_creacion").defaultExpression(CurrentTimestamp) // Cambié a timestamp
+    val fechaUltimaEdicion = timestamp("fecha_ultima_edicion").defaultExpression(CurrentTimestamp) // Cambié a timestamp
+    val estado = varchar("estado", 10).default("activo").check { it inList listOf("activo", "borrado") } // Añadí check para simular ENUM
 }
 
-object Categorias : Table("categorias") {
-    val id = integer("id_categoria").autoIncrement().entityId()
+object Categorias : IntIdTable("categorias","id_categoria") { // Extiende IntIdTable
     val nombreCategoria = varchar("nombre_categoria", 100).uniqueIndex()
     val descripcion = text("descripcion").nullable()
-    override val primaryKey = PrimaryKey(id)
-
 }
 
+// Tabla intermedia para relaciones muchos-a-muchos
 object ArticulosCategorias : Table("articulos_categorias") {
-    val articuloId = integer("articulo_id").references(Articulos.id, onDelete = ReferenceOption.CASCADE)
-    val categoriaId = integer("categoria_id").references(Categorias.id, onDelete = ReferenceOption.CASCADE)
+    val articuloId = reference("articulo_id", Articulos, onDelete = ReferenceOption.CASCADE)
+    val categoriaId = reference("categoria_id", Categorias, onDelete = ReferenceOption.CASCADE)
 
     override val primaryKey = PrimaryKey(articuloId, categoriaId)
 }
 
-
-object Secciones : Table("secciones") {
-     val id = integer("id_seccion").autoIncrement().entityId()
+object Secciones : IntIdTable("secciones","id_seccion") { // Extiende IntIdTable
     val titulo = varchar("titulo", 255)
     val descripcion = text("descripcion").nullable()
-    val creadorId = integer("creador_id").references(Usuarios.id)
+    val creadorId = reference("creador_id", Usuarios) // FK
     val fechaCreacion = timestamp("fecha_creacion").defaultExpression(CurrentTimestamp)
-    val imagen = varchar("imagen", 255).nullable()
-
-    override val primaryKey = PrimaryKey(id)
-
+    val imagen = varchar("imagen", 500).nullable() // Aumenté el tamaño si es necesario
 }
 
-object Posts : Table("posts") {
-    val id = integer("id_post").autoIncrement().entityId()
+object Posts : IntIdTable("posts","id_post") { // Extiende IntIdTable
     val titulo = varchar("titulo", 255)
     val contenido = text("contenido")
-    val imagen = varchar("imagen", 255).nullable()
-
-    /*variable usada para guardar la cantidad de likes de un comentario como dato cache
-    con el fin de evitar contar los likes cada vez que se necesiten
-     */
-    val likeCount = integer("contador_likes").default(0)
-    val comentarioCount = integer("contador_comentario").default(0)
-    val autorId = integer("autor_id").references(Usuarios.id)
-    val seccionId = integer("seccion_id").references(Secciones.id, onDelete = ReferenceOption.CASCADE)
+    val imagen = varchar("imagen", 500).nullable() // Aumenté el tamaño si es necesario
+    val contadorLikes = integer("contador_likes").default(0)
+    val contadorComentarios = integer("contador_comentarios").default(0) // Corregí nombre
+    val autorId = reference("autor_id", Usuarios) // FK
+    val seccionId = reference("seccion_id", Secciones, onDelete = ReferenceOption.CASCADE) // FK
     val fechaCreacion = timestamp("fecha_creacion").defaultExpression(CurrentTimestamp)
-
-    override val primaryKey = PrimaryKey(id)
 }
 
 object PostLikes: Table("posts_likes") {
-    val postId = integer("post_id").references(Posts.id, onDelete = ReferenceOption.CASCADE)
-    val usuarioId = integer("usuario_id").references(Usuarios.id)
+    val postId = reference("post_id", Posts, onDelete = ReferenceOption.CASCADE) // FK
+    val usuarioId = reference("usuario_id", Usuarios) // FK
 
     override val primaryKey = PrimaryKey(postId, usuarioId)
 }
 
-object Comentarios : Table("comentarios") {
-    val id = integer("id_comentario").autoIncrement().entityId()
-    val contenido = text("contenido") // NOT NULL
-    val imagen = varchar("imagen", 255).nullable()
-
-    /*variable usada para guardar la cantidad de likes de un comentario como dato cache
-    con el fin de evitar contar los likes cada vez que se necesiten
-     */
-    val likeCount = integer("contador_likes").default(0)
-    val autorId = integer("autor_id").references(Usuarios.id)
-    val postId = integer("post_id").references(Posts.id, onDelete = ReferenceOption.CASCADE)
-    val comentarioPadreId = integer("comentario_padre_id").references(id, onDelete = ReferenceOption.CASCADE)
+object Comentarios : IntIdTable("comentarios","id_comentario") { // Extiende IntIdTable
+    val contenido = text("contenido") // NOT NULL implícito por defecto en text()
+    val imagen = varchar("imagen", 500).nullable() // Aumenté el tamaño si es necesario
+    val contadorLikes = integer("contador_likes").default(0)
+    val autorId = reference("autor_id", Usuarios) // FK
+    val postId = reference("post_id", Posts, onDelete = ReferenceOption.CASCADE) // FK
+    val comentarioPadreId = integer("comentario_padre_id").nullable() // FK a sí mismo
     val fechaCreacion = timestamp("fecha_creacion").defaultExpression(CurrentTimestamp)
-
-    override val primaryKey = PrimaryKey(id)
-
 }
 
 object ComentariosLikes : Table("comentarios_likes") {
-    val comentarioId = integer("comentario_id").references(Comentarios.id, onDelete = ReferenceOption.CASCADE)
-    val usuarioId = integer("usuario_id").references(Usuarios.id)
+    val comentarioId = reference("comentario_id", Comentarios, onDelete = ReferenceOption.CASCADE) // FK
+    val usuarioId = reference("usuario_id", Usuarios) // FK
 
-    override val primaryKey = PrimaryKey(usuarioId, comentarioId)
+    override val primaryKey = PrimaryKey(usuarioId, comentarioId) // El orden puede ser indistinto
 }
 
 object SeguimientosSecciones : Table("seguimientos_secciones") {
-    val usuarioId = integer("usuario_id").references(Usuarios.id, onDelete = ReferenceOption.CASCADE)
-    val seccionId = integer("seccion_id").references(Secciones.id, onDelete = ReferenceOption.CASCADE)
+    val usuarioId = reference("usuario_id", Usuarios, onDelete = ReferenceOption.CASCADE) // FK
+    val seccionId = reference("seccion_id", Secciones, onDelete = ReferenceOption.CASCADE) // FK
 
     override val primaryKey = PrimaryKey(usuarioId, seccionId)
 }

@@ -1,8 +1,11 @@
 package org.example.daos
 
+import org.example.database.Articulos
 import org.jetbrains.exposed.sql.selectAll
 import org.example.database.ArticulosCategorias
+import org.example.database.Categorias
 import org.example.models.ArticuloCategoria
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -25,7 +28,7 @@ object ArticuloCategoriaDAO {
             .map { rowToArticuloCategoria(it) }
     }
 
-    fun exists(articuloId: Int, categoriaId: Int): Boolean = transaction {
+    fun exists(articuloId: EntityID<Int>, categoriaId: EntityID<Int>): Boolean = transaction {
         ArticulosCategorias
             .selectAll().where {
                 (ArticulosCategorias.articuloId eq articuloId) and
@@ -37,7 +40,7 @@ object ArticuloCategoriaDAO {
     fun create(relacion: ArticuloCategoria): Boolean = transaction {
         try {
             // Verificar si ya existe
-            if (exists(relacion.articuloId, relacion.categoriaId)) {
+            if (exists(EntityID(relacion.articuloId, Articulos), EntityID( relacion.categoriaId, Categorias))) {
                 return@transaction false
             }
 
@@ -55,7 +58,7 @@ object ArticuloCategoriaDAO {
     fun createBatch(relaciones: List<ArticuloCategoria>): Int = transaction {
         // Filtrar relaciones que ya existen
         val nuevasRelaciones = relaciones.filter { relacion ->
-            !exists(relacion.articuloId, relacion.categoriaId)
+            !exists(EntityID(relacion.articuloId, Articulos), EntityID(relacion.categoriaId, Categorias))
         }
 
         // Insertar en lote
@@ -77,7 +80,7 @@ object ArticuloCategoriaDAO {
         deletedCount > 0
     }
 
-    fun deleteByArticuloId(articuloId: Int): Int = transaction {
+    fun deleteByArticuloId(articuloId: EntityID<Int>): Int = transaction {
         ArticulosCategorias.deleteWhere { ArticulosCategorias.articuloId eq articuloId }
     }
 
@@ -85,26 +88,26 @@ object ArticuloCategoriaDAO {
         ArticulosCategorias.deleteWhere { ArticulosCategorias.categoriaId eq categoriaId }
     }
 
-    fun replaceCategoriasForArticulo(articuloId: Int, categoriasIds: List<Int>): Pair<Int, Int> = transaction {
+    fun replaceCategoriasForArticulo(articuloId: EntityID<Int>, categoriasIds: List<EntityID<Int>>): Pair<Int, Int> = transaction {
         // 1. Eliminar categorías antiguas
         val deletedCount = deleteByArticuloId(articuloId)
 
         // 2. Agregar nuevas categorías
         val nuevasRelaciones = categoriasIds.map { categoriaId ->
-            ArticuloCategoria(articuloId, categoriaId)
+            ArticuloCategoria(articuloId.value, categoriaId.value)
         }
         val createdCount = createBatch(nuevasRelaciones)
 
         Pair(deletedCount, createdCount)
     }
 
-    fun getCategoriasIdsForArticulo(articuloId: Int): List<Int> = transaction {
+    fun getCategoriasIdsForArticulo(articuloId: Int): List<EntityID<Int>> = transaction {
         ArticulosCategorias
             .selectAll().where { ArticulosCategorias.articuloId eq articuloId }
             .map { it[ArticulosCategorias.categoriaId] }
     }
 
-    fun getArticulosIdsForCategoria(categoriaId: Int): List<Int> = transaction {
+    fun getArticulosIdsForCategoria(categoriaId: Int): List<EntityID<Int>> = transaction {
         ArticulosCategorias
             .selectAll().where { ArticulosCategorias.categoriaId eq categoriaId }
             .map { it[ArticulosCategorias.articuloId] }
@@ -112,7 +115,7 @@ object ArticuloCategoriaDAO {
 
     // Método privado para convertir ResultRow a ArticuloCategoria
     private fun rowToArticuloCategoria(row: ResultRow): ArticuloCategoria = ArticuloCategoria(
-        articuloId = row[ArticulosCategorias.articuloId],
-        categoriaId = row[ArticulosCategorias.categoriaId]
+        articuloId = row[ArticulosCategorias.articuloId].value,
+        categoriaId = row[ArticulosCategorias.categoriaId].value
     )
 }

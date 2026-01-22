@@ -6,8 +6,12 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.example.database.Secciones
+import org.example.database.Usuarios
+import org.example.models.Seccion
 import org.example.models.SeguimientoSeccion
 import org.example.services.SeguimientoSeccionesService
+import org.jetbrains.exposed.dao.id.EntityID
 
 
 fun Route.seguimientoSeccionesRoutes() {
@@ -52,8 +56,10 @@ fun Route.seguimientoSeccionesRoutes() {
                 val usuarioId = call.parameters["usuarioId"]?.toIntOrNull()
                 val seccionId = call.parameters["seccionId"]?.toIntOrNull()
                 if (usuarioId != null && seccionId != null) {
+                    val usuarioEntityID = EntityID(usuarioId, Usuarios)
+                    val seccionEntityID = EntityID(seccionId, Secciones)
                     try {
-                        val seguimientoCreado = service.createSeguimiento(usuarioId, seccionId)
+                        val seguimientoCreado = service.createSeguimiento(usuarioEntityID, seccionEntityID)
                         call.respond(HttpStatusCode.Created, seguimientoCreado)
                     } catch (e: IllegalArgumentException) {
                         call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))

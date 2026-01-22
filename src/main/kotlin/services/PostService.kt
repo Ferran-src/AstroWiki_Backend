@@ -45,9 +45,7 @@ class PostService {
         validatePost(post, isUpdate = false)
 
         val autor = usuarioDao.findById(post.autorId)
-        if (autor == null) {
-            throw IllegalArgumentException("El autor con ID ${post.autorId} no existe.")
-        }
+            ?: throw IllegalArgumentException("El autor con ID ${post.autorId} no existe.")
 
         var postWithImage = post
 

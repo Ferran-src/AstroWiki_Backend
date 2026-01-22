@@ -2,6 +2,7 @@ package org.example.daos
 
 import org.example.models.SeguimientoSeccion
 import org.example.database.SeguimientosSecciones
+import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.selectAll
@@ -33,12 +34,12 @@ object SeguimientoSeccionesDAO {
         }
     }
 
-    fun create(usuarioId: Int, seccionId: Int): SeguimientoSeccion = transaction {
+    fun create(usuarioId: EntityID<Int>, seccionId: EntityID<Int>): SeguimientoSeccion = transaction {
         SeguimientosSecciones.insert {
             it[SeguimientosSecciones.usuarioId] = usuarioId
             it[SeguimientosSecciones.seccionId] = seccionId
         }
-        SeguimientoSeccion(usuarioId = usuarioId, seccionId = seccionId)
+        SeguimientoSeccion(usuarioId = usuarioId.value, seccionId = seccionId.value)
     }
 
     fun delete(usuarioId: Int, seccionId: Int): Boolean = transaction {
@@ -50,8 +51,8 @@ object SeguimientoSeccionesDAO {
 
     private fun rowToSeguimiento(row: ResultRow): SeguimientoSeccion {
         return SeguimientoSeccion(
-            usuarioId = row[SeguimientosSecciones.usuarioId],
-            seccionId = row[SeguimientosSecciones.seccionId]
+            usuarioId = row[SeguimientosSecciones.usuarioId].value,
+            seccionId = row[SeguimientosSecciones.seccionId].value
         )
     }
 }
