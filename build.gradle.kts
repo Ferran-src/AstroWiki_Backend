@@ -46,6 +46,10 @@ dependencies {
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
 
     implementation("at.favre.lib:bcrypt:0.10.2")
+
+    // dependencias para Jason Web Token
+    implementation("io.ktor:ktor-server-auth")
+    implementation("io.ktor:ktor-server-auth-jwt")
 }
 
 tasks.test {
