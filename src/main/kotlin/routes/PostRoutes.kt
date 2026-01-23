@@ -150,8 +150,8 @@ fun Route.postRoutes() {
 
                     var titulo: String? = null
                     var contenido: String? = null
-                    var autorId: EntityID<Int>? = null
-                    var seccionId: EntityID<Int>? = null
+                    var autorId: Int? = null
+                    var seccionId: Int? = null
                     var fechaCreacion: String? = null
 
                     var newImageBytes: ByteArray? = null
@@ -172,8 +172,8 @@ fun Route.postRoutes() {
                                 when (part.name) {
                                     "titulo" -> titulo = part.value
                                     "contenido" -> contenido = part.value
-                                    "autorId" -> autorId = part.value.toIntOrNull() as EntityID<Int>?
-                                    "seccionId" -> seccionId = part.value.toIntOrNull() as EntityID<Int>?
+                                    "autorId" -> autorId = part.value.toIntOrNull()
+                                    "seccionId" -> seccionId = part.value.toIntOrNull()
                                     "fechaCreacion" -> fechaCreacion = part.value
                                 }
                             }
@@ -209,8 +209,8 @@ fun Route.postRoutes() {
                         imagen = postExistente.imagen, // se reemplaza en el service si llega nueva
                         likeCount = postExistente.likeCount,
                         comentarioCount = postExistente.comentarioCount,
-                        autorId = autorId!!.value,
-                        seccionId = seccionId!!.value,
+                        autorId = autorId!!,
+                        seccionId = seccionId!!,
                         fechaCreacion = postExistente.fechaCreacion
                     )
 

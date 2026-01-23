@@ -94,7 +94,7 @@ object PostDAO {
         idPost = row[Posts.id].value,
         titulo = row[Posts.titulo],
         contenido = row[Posts.contenido],
-        imagen = row[Posts.imagen].takeIf { it != null && !it.isEmpty() },
+        imagen = row[Posts.imagen].takeIf { !it.isNullOrEmpty() },
         likeCount = row[Posts.contadorLikes],
         comentarioCount = row[Posts.contadorComentarios],
         autorId = row[Posts.autorId].value,
