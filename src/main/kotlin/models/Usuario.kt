@@ -10,7 +10,7 @@ data class Usuario(
     @SerialName("nombre_usuario") val nombreUsuario: String,
     val correo: String,
     val contraseña: String,
-    @SerialName("fecha_registro") val fechaRegistro: String,
+    @SerialName("fecha_registro") val fechaRegistro: String?,
     val rol: String = "lector",
     val imagen: String?
 )
