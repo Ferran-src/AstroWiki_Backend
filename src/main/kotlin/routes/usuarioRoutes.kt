@@ -32,7 +32,6 @@ fun Route.usuarioRoutes() {
 
     route("/usuarios") {
 
-        // --- Ruta para Login ---
         route("/login") {
             post {
                 try {

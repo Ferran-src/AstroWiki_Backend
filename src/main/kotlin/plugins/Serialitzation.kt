@@ -7,7 +7,7 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.application.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
-import kotlinx.datetime.Instant
+import java.time.Instant
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -21,11 +21,11 @@ object InstantIso8601Serializer : KSerializer<Instant> {
     override val descriptor = PrimitiveSerialDescriptor("Instant", PrimitiveKind.STRING)
 
     override fun serialize(encoder: Encoder, value: Instant) {
-        encoder.encodeString(value.toString()) // Convierte Instant a String en formato ISO
+        encoder.encodeString(value.toString())
     }
 
     override fun deserialize(decoder: Decoder): Instant {
-        return Instant.parse(decoder.decodeString()) // Parsea String a Instant
+        return Instant.parse(decoder.decodeString())
     }
 }
 @OptIn(ExperimentalTime::class)
