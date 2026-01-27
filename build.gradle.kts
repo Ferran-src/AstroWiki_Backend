@@ -48,8 +48,8 @@ dependencies {
     implementation("at.favre.lib:bcrypt:0.10.2")
 
     // dependencias para Jason Web Token
-    implementation("io.ktor:ktor-server-auth")
-    implementation("io.ktor:ktor-server-auth-jwt")
+    implementation("io.ktor:ktor-server-auth:2.3.12")
+    implementation("io.ktor:ktor-server-auth-jwt:2.3.12")
 }
 
 tasks.test {

@@ -26,12 +26,6 @@ data class LoginResponse(
     // val token: String? = null
 )
 
-val secret = environment.config.property("jwt.secret").getString()
-val issuer = environment.config.property("jwt.issuer").getString()
-val audience = environment.config.property("jwt.audience").getString()
-val myRealm = environment.config.property("jwt.realm").getString()
-
-
 
 fun Route.usuarioRoutes() {
     val service = UsuarioService()
@@ -45,12 +39,6 @@ fun Route.usuarioRoutes() {
                     val loginRequest = call.receive<LoginRequest>()
                     val usuarioAutenticado = service.authenticateUsuario(loginRequest.correo, loginRequest.contrasena)
 
-                    val token = JWT.create()
-                        .withAudience(audience)
-                        .withIssuer(issuer)
-                        .withClaim("username", user.username)
-                        .withExpiresAt(Date(System.currentTimeMillis() + 60000))
-                        .sign(Algorithm.HMAC256(secret))
 
                     if (usuarioAutenticado != null) {
                         call.respond(hashMapOf("token" to token))

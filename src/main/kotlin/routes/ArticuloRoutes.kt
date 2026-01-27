@@ -2,6 +2,7 @@ package org.example.routes
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
+import io.ktor.server.auth.authenticate
 import io.ktor.server.routing.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -14,16 +15,18 @@ fun Route.articuloRoutes() {
 
     route("/articulos") {
 
-        get {
-            try {
-                call.respond(service.getAll())
-            } catch (e: IllegalArgumentException) {
-                call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
-            } catch (e: Exception) {
-                call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
-                e.printStackTrace()
-            }
+        authenticate("auth-basic") {
+            get {
+                try {
+                    call.respond(service.getAll())
+                } catch (e: IllegalArgumentException) {
+                    call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
+                } catch (e: Exception) {
+                    call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
+                    e.printStackTrace()
+                }
 
+            }
         }
 
         route("/{id}") {
