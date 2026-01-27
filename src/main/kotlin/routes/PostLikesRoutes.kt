@@ -14,9 +14,6 @@ fun Route.postLikesRoutes() {
 
     route("/posts-likes") {
 
-        // =========================
-        // TOGGLE LIKE
-        // =========================
         post {
             try {
                 val body = call.receive<PostLikes>()
@@ -38,9 +35,7 @@ fun Route.postLikesRoutes() {
             }
         }
 
-        // =========================
-        // GET POSTS LIKED BY USER
-        // =========================
+
         route("/usuario/{usuarioId}") {
             get {
                 try {
@@ -64,9 +59,7 @@ fun Route.postLikesRoutes() {
             }
         }
 
-        // =========================
-        // GET USERS WHO LIKED POST
-        // =========================
+
         route("/post/{postId}") {
             get {
                 try {
