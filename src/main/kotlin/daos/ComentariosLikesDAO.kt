@@ -40,7 +40,7 @@ object ComentariosLikesDAO {
             it[ComentariosLikes.comentarioId] = comentarioId
         }
 
-        ComentarioLike(comentarioid = comentarioId, usuarioid = usuarioId)
+        ComentarioLike(comentarioid = comentarioId.value, usuarioid = usuarioId.value)
     }
 
 
@@ -54,8 +54,8 @@ object ComentariosLikesDAO {
 
     private fun rowToComentarioLike(row: ResultRow): ComentarioLike {
         return ComentarioLike(
-            comentarioid = row[ComentariosLikes.comentarioId],
-            usuarioid = row[ComentariosLikes.usuarioId]
+            comentarioid = row[ComentariosLikes.comentarioId].value,
+            usuarioid = row[ComentariosLikes.usuarioId].value
         )
     }
 }

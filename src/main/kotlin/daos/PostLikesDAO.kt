@@ -31,17 +31,17 @@ object PostLikesDAO {
         } > 0
     }
 
-    fun findPostsLikedByUsuario(usuarioId: Int): List<EntityID<Int>> = transaction {
+    fun findPostsLikedByUsuario(usuarioId: Int): List<org.example.models.PostLikes> = transaction {
         PostLikes
             .select(PostLikes.postId)
             .where { PostLikes.usuarioId eq usuarioId }
-            .map { it[PostLikes.postId] }
+            .map { org.example.models.PostLikes(it[PostLikes.postId].value, usuarioId)}
     }
 
-    fun findUsuariosWhoLikedPost(postId: Int): List<EntityID<Int>> = transaction {
+    fun findUsuariosWhoLikedPost(postId: Int): List<org.example.models.PostLikes> = transaction {
         PostLikes
             .select(PostLikes.usuarioId)
             .where { PostLikes.postId eq postId }
-            .map { it[PostLikes.usuarioId] }
+            .map { org.example.models.PostLikes(postId, it[PostLikes.usuarioId].value)}
     }
 }
