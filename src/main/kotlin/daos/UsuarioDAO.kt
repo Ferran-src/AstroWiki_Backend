@@ -34,7 +34,7 @@ object UsuarioDAO {
             it[rol] = usuario.rol
         } get Usuarios.id
 
-        usuario.copy(idUsuario = insertedId.value)
+        usuario.copy(idUsuario = insertedId.value, contraseña = "")
     }
 
     fun delete(id: Int): Boolean = transaction {
