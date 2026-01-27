@@ -27,7 +27,7 @@ fun Application.configureRouting() {
 
 
     install(Authentication) {
-        basic("auth-basic-hashed") {
+        basic("auth-basic") {
             realm = "Access to the '/' path"
             validate { credentials ->
                 hashedUserTable.authenticate(credentials)

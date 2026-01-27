@@ -40,7 +40,7 @@ fun Route.usuarioRoutes() {
 
 
                     if (usuarioAutenticado != null) {
-                        call.respond(hashMapOf("token" to token))
+                        call.respond(HttpStatusCode.OK, LoginResponse("Login exitoso", usuarioAutenticado.idUsuario))
                     } else {
                         call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Credenciales inválidas"))
                     }
