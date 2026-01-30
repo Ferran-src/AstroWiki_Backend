@@ -50,6 +50,7 @@ dependencies {
     // dependencias para Jason Web Token
     implementation("io.ktor:ktor-server-auth:2.3.12")
     implementation("io.ktor:ktor-server-auth-jwt:2.3.12")
+    implementation("com.auth0:java-jwt:4.4.0")
 }
 
 tasks.test {

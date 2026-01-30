@@ -29,7 +29,21 @@ fun Route.articuloRoutes() {
             }
         }
 
-        route("/{id}") {
+
+//        get {
+//            val articles = call.receive<Articulo>()
+//            // Check username and password
+//            // ...
+//            val token = JWT.create()
+//                .withAudience(audience)
+//                .withIssuer(issuer)
+//                .withClaim("articulo", articles.titulo)
+//                .withExpiresAt(Date(System.currentTimeMillis() + 5000))
+//                .sign(Algorithm.HMAC256(secret))
+//            call.respond(hashMapOf("token" to token))
+//        }
+
+            route("/{id}") {
             get {
                 try {
                     val id = call.parameters["id"]?.toIntOrNull()

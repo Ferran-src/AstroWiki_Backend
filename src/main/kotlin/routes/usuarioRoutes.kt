@@ -5,6 +5,9 @@ import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
 import io.ktor.http.content.streamProvider
 import io.ktor.server.application.*
+import io.ktor.server.auth.authenticate
+import io.ktor.server.auth.jwt.JWTPrincipal
+import io.ktor.server.auth.principal
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -22,8 +25,8 @@ data class LoginRequest(
 
 data class LoginResponse(
     val message: String,
-    val userId: Int? = null
-    // val token: String? = null
+    val userId: Int? = null,
+    val token: String? = null
 )
 
 
@@ -38,9 +41,9 @@ fun Route.usuarioRoutes() {
                     val loginRequest = call.receive<LoginRequest>()
                     val usuarioAutenticado = service.authenticateUsuario(loginRequest.correo, loginRequest.contrasena)
 
-
                     if (usuarioAutenticado != null) {
-                        call.respond(HttpStatusCode.OK, LoginResponse("Login exitoso", usuarioAutenticado.idUsuario))
+                        val token = service.generateJWTToken(usuarioAutenticado)
+                        call.respond(HttpStatusCode.OK, LoginResponse("Login exitoso", usuarioAutenticado.idUsuario, token))
                     } else {
                         call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Credenciales inválidas"))
                     }
@@ -64,126 +67,149 @@ fun Route.usuarioRoutes() {
             }
         }
 
-        route("/{id}") {
-            get {
-                val id = call.parameters["id"]?.toIntOrNull()
-                if (id != null) {
-                    val usuario = service.getUsuarioById(id)
-                    if (usuario != null) {
-                        call.respond(usuario)
-                    } else {
-                        call.respond(HttpStatusCode.NotFound, "Usuario no encontrado")
-                    }
-                } else {
-                    call.respond(HttpStatusCode.BadRequest, "ID de usuario inválido")
-                }
-            }
-
-            delete {
-                val id = call.parameters["id"]?.toIntOrNull()
-                if (id != null) {
-                    if (service.deleteUsuario(id)) {
-                        call.respond(HttpStatusCode.OK, "Usuario eliminado correctamente")
-                    } else {
-                        call.respond(HttpStatusCode.NotFound, "Usuario no encontrado para eliminar")
-                    }
-                } else {
-                    call.respond(HttpStatusCode.BadRequest, "ID de usuario inválido")
-                }
-            }
-
-            route("/perfil") {
-                put {
+        authenticate("auth-jwt") {
+            route("/{id}") {
+                get {
+                    // Esta ruta ahora requiere autenticación JWT
+                    val principal = call.principal<JWTPrincipal>()
+                    val userId = principal?.payload?.getClaim("userId")?.asInt()
 
                     val id = call.parameters["id"]?.toIntOrNull()
+                    if (id != null && id == userId) { // Verifica que el usuario esté accediendo a su propio perfil
+                        val usuario = service.getUsuarioById(id)
+                        if (usuario != null) {
+                            call.respond(usuario)
+                        } else {
+                            call.respond(HttpStatusCode.NotFound, "Usuario no encontrado")
+                        }
+                    } else {
+                        call.respond(HttpStatusCode.Forbidden, "Acceso denegado")
+                    }
+                }
+
+                delete {
+                    val id = call.parameters["id"]?.toIntOrNull()
                     if (id != null) {
-                        try {
-                            // Recibe la solicitud multipart
-                            val multipartData = call.receive<MultiPartData>()
+                        if (service.deleteUsuario(id)) {
+                            call.respond(HttpStatusCode.OK, "Usuario eliminado correctamente")
+                        } else {
+                            call.respond(HttpStatusCode.NotFound, "Usuario no encontrado para eliminar")
+                        }
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest, "ID de usuario inválido")
+                    }
+                }
 
-                            var nombreUsuario: String? = null
-                            var correo: String? = null
-                            var rol: String? = null
-                            var newImageBytes: ByteArray? = null
-                            var newImageMimeType: String? = null
-                            var newImageOriginalFileName: String? = null
+                route("/perfil") {
+                    put {
 
-                            multipartData.forEachPart { part ->
-                                when (part) {
-                                    is PartData.FileItem -> {
+                        val id = call.parameters["id"]?.toIntOrNull()
+                        if (id != null) {
+                            try {
+                                // Recibe la solicitud multipart
+                                val multipartData = call.receive<MultiPartData>()
 
-                                        if (part.name == "imagen") {
-                                            newImageOriginalFileName = part.originalFileName
-                                            newImageMimeType = part.contentType?.toString()
-                                            newImageBytes = part.streamProvider().use { it.readAllBytes() }
+                                var nombreUsuario: String? = null
+                                var correo: String? = null
+                                var rol: String? = null
+                                var newImageBytes: ByteArray? = null
+                                var newImageMimeType: String? = null
+                                var newImageOriginalFileName: String? = null
+
+                                multipartData.forEachPart { part ->
+                                    when (part) {
+                                        is PartData.FileItem -> {
+
+                                            if (part.name == "imagen") {
+                                                newImageOriginalFileName = part.originalFileName
+                                                newImageMimeType = part.contentType?.toString()
+                                                newImageBytes = part.streamProvider().use { it.readAllBytes() }
+                                            }
                                         }
-                                    }
-                                    is PartData.FormItem -> {
-                                        when (part.name) {
-                                            "nombreUsuario" -> nombreUsuario = part.value
-                                            "correo" -> correo = part.value
-                                            "rol" -> rol = part.value
+
+                                        is PartData.FormItem -> {
+                                            when (part.name) {
+                                                "nombreUsuario" -> nombreUsuario = part.value
+                                                "correo" -> correo = part.value
+                                                "rol" -> rol = part.value
+                                            }
                                         }
+
+                                        else -> {}
                                     }
-                                    else -> {}
+                                    part.dispose()
                                 }
-                                part.dispose()
+
+                                if (nombreUsuario == null || correo == null) {
+                                    call.respond(
+                                        HttpStatusCode.BadRequest,
+                                        mapOf("error" to "Faltan campos obligatorios: nombreUsuario, correo")
+                                    )
+                                    return@put
+                                }
+
+
+                                val perfilRequest = ActualizarPerfilRequest(
+                                    nombreUsuario = nombreUsuario,
+                                    correo = correo,
+                                    rol = rol,
+                                    newImageBytes = newImageBytes,
+                                    newImageMimeType = newImageMimeType,
+                                    newImageOriginalFileName = newImageOriginalFileName
+                                )
+
+                                // Llama al servicio con el objeto ya construido
+                                if (service.updatePerfilUsuario(id, perfilRequest)) {
+                                    val usuarioActualizado = service.getUsuarioById(id)
+                                    call.respond(HttpStatusCode.OK, usuarioActualizado as Usuario)
+                                } else {
+                                    call.respond(
+                                        HttpStatusCode.NotFound,
+                                        "Usuario no encontrado para actualizar perfil"
+                                    )
+                                }
+
+                            } catch (e: IllegalArgumentException) {
+                                call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
+                            } catch (e: Exception) {
+                                call.respond(
+                                    HttpStatusCode.InternalServerError,
+                                    mapOf("error" to "Error interno del servidor")
+                                )
+                                e.printStackTrace()
                             }
-
-                            if (nombreUsuario == null || correo == null) {
-                                call.respond(HttpStatusCode.BadRequest, mapOf("error" to "Faltan campos obligatorios: nombreUsuario, correo"))
-                                return@put
-                            }
-
-
-                            val perfilRequest = ActualizarPerfilRequest(
-                                nombreUsuario = nombreUsuario,
-                                correo = correo,
-                                rol = rol,
-                                newImageBytes = newImageBytes,
-                                newImageMimeType = newImageMimeType,
-                                newImageOriginalFileName = newImageOriginalFileName
-                            )
-
-                            // Llama al servicio con el objeto ya construido
-                            if (service.updatePerfilUsuario(id, perfilRequest)) {
-                                val usuarioActualizado = service.getUsuarioById(id)
-                                call.respond(HttpStatusCode.OK,usuarioActualizado as Usuario)
-                            } else {
-                                call.respond(HttpStatusCode.NotFound, "Usuario no encontrado para actualizar perfil")
-                            }
-
-                        } catch (e: IllegalArgumentException) {
-                            call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
-                        } catch (e: Exception) {
-                            call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
-                            e.printStackTrace()
+                        } else {
+                            call.respond(HttpStatusCode.BadRequest, "ID de usuario inválido")
                         }
-                    } else {
-                        call.respond(HttpStatusCode.BadRequest, "ID de usuario inválido")
                     }
                 }
-            }
 
-            route("/contrasena") {
-                put {
-                    val id = call.parameters["id"]?.toIntOrNull()
-                    if (id != null) {
-                        try {
-                            val contrasenaRequest = call.receive<CambiarContrasenaRequest>()
-                            if (service.cambiarContrasenaUsuario(id, contrasenaRequest)) {
-                                call.respond(HttpStatusCode.OK, "Contraseña actualizada correctamente")
-                            } else {
-                                call.respond(HttpStatusCode.NotFound, "Usuario no encontrado para cambiar contraseña")
+                route("/contrasena") {
+                    put {
+                        val id = call.parameters["id"]?.toIntOrNull()
+                        if (id != null) {
+                            try {
+                                val contrasenaRequest = call.receive<CambiarContrasenaRequest>()
+                                if (service.cambiarContrasenaUsuario(id, contrasenaRequest)) {
+                                    call.respond(HttpStatusCode.OK, "Contraseña actualizada correctamente")
+                                } else {
+                                    call.respond(
+                                        HttpStatusCode.NotFound,
+                                        "Usuario no encontrado para cambiar contraseña"
+                                    )
+                                }
+                            } catch (e: IllegalArgumentException) {
+                                call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
+                            } catch (e: Exception) {
+                                call.respond(
+                                    HttpStatusCode.InternalServerError,
+                                    mapOf("error" to "Error interno del servidor")
+                                )
+                                e.printStackTrace()
                             }
-                        } catch (e: IllegalArgumentException) {
-                            call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
-                        } catch (e: Exception) {
-                            call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
-                            e.printStackTrace()
+                        } else {
+                            call.respond(HttpStatusCode.BadRequest, "ID de usuario inválido")
                         }
-                    } else {
-                        call.respond(HttpStatusCode.BadRequest, "ID de usuario inválido")
                     }
                 }
             }
