@@ -84,7 +84,7 @@ class UsuarioService {
             contrasenaPlana.toCharArray(),
             usuario.contraseña // El hash almacenado
         )
-
+        println(passwordVerificationResult.details)
         if (passwordVerificationResult.verified) {
 
             return usuario.copy(contraseña = "")

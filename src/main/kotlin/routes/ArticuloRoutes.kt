@@ -2,7 +2,6 @@ package org.example.routes
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.*
-import io.ktor.server.auth.authenticate
 import io.ktor.server.routing.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -26,23 +25,23 @@ fun Route.articuloRoutes() {
                     e.printStackTrace()
                 }
 
+        }
+        post {
+            try {
+                val articulo = call.receive<Articulo>()
+                val id = service.create(articulo)
+                call.respond(mapOf("id" to id))
+            } catch (e: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("Error" to e.message))
+            }catch (e: org.postgresql.util.PSQLException){
+                call.respond(HttpStatusCode.BadRequest, mapOf("Error" to "el estado tiene que ser un valor valido"))
+            }
+            catch (e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
+                e.printStackTrace()
             }
         }
-
-//        get {
-//            val articles = call.receive<Articulo>()
-//            // Check username and password
-//            // ...
-//            val token = JWT.create()
-//                .withAudience(audience)
-//                .withIssuer(issuer)
-//                .withClaim("articulo", articles.titulo)
-//                .withExpiresAt(Date(System.currentTimeMillis() + 5000))
-//                .sign(Algorithm.HMAC256(secret))
-//            call.respond(hashMapOf("token" to token))
-//        }
-
-            route("/{id}") {
+        route("/{id}") {
             get {
                 try {
                     val id = call.parameters["id"]?.toIntOrNull()
@@ -56,18 +55,6 @@ fun Route.articuloRoutes() {
                     call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
                 }
                 catch (e: Exception) {
-                    call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
-                    e.printStackTrace()
-                }
-            }
-            post {
-                try {
-                    val articulo = call.receive<Articulo>()
-                    val id = service.create(articulo)
-                    call.respond(mapOf("id" to id))
-                } catch (e: IllegalArgumentException) {
-                    call.respond(HttpStatusCode.BadRequest, mapOf("Error" to e.message))
-                } catch (e: Exception) {
                     call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
                     e.printStackTrace()
                 }
@@ -110,3 +97,4 @@ fun Route.articuloRoutes() {
         }
     }
 }
+    }
