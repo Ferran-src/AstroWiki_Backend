@@ -25,7 +25,21 @@ fun Route.articuloRoutes() {
             }
 
         }
-
+        post {
+            try {
+                val articulo = call.receive<Articulo>()
+                val id = service.create(articulo)
+                call.respond(mapOf("id" to id))
+            } catch (e: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("Error" to e.message))
+            }catch (e: org.postgresql.util.PSQLException){
+                call.respond(HttpStatusCode.BadRequest, mapOf("Error" to "el estado tiene que ser un valor valido"))
+            }
+            catch (e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
+                e.printStackTrace()
+            }
+        }
         route("/{id}") {
             get {
                 try {
@@ -40,18 +54,6 @@ fun Route.articuloRoutes() {
                     call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
                 }
                 catch (e: Exception) {
-                    call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
-                    e.printStackTrace()
-                }
-            }
-            post {
-                try {
-                    val articulo = call.receive<Articulo>()
-                    val id = service.create(articulo)
-                    call.respond(mapOf("id" to id))
-                } catch (e: IllegalArgumentException) {
-                    call.respond(HttpStatusCode.BadRequest, mapOf("Error" to e.message))
-                } catch (e: Exception) {
                     call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
                     e.printStackTrace()
                 }
