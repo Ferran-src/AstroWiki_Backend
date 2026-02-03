@@ -11,6 +11,7 @@ import io.ktor.server.auth.principal
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.Serializable
 import org.example.models.Usuario
 
 import org.example.services.UsuarioService
@@ -18,11 +19,13 @@ import org.example.services.ActualizarPerfilRequest
 import org.example.services.CambiarContrasenaRequest
 
 // Data class para recibir credenciales de login
+@Serializable
 data class LoginRequest(
     val correo: String,
     val contrasena: String
 )
 
+@Serializable
 data class LoginResponse(
     val message: String,
     val userId: Int? = null,
@@ -43,6 +46,7 @@ fun Route.usuarioRoutes() {
 
                     if (usuarioAutenticado != null) {
                         val token = service.generateJWTToken(usuarioAutenticado)
+                        println("JWT GENERADO: $token")
                         call.respond(HttpStatusCode.OK, LoginResponse("Login exitoso", usuarioAutenticado.idUsuario, token))
                     } else {
                         call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "Credenciales inválidas"))

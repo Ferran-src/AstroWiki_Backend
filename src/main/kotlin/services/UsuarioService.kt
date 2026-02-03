@@ -210,7 +210,7 @@ class UsuarioService {
 
     fun generateJWTToken(usuario: Usuario): String {
         val now = Date()
-        val validity = Date(now.time + 5000) // Token válido por 1 hora
+        val validity = Date(now.time + 30000)
 
         return JWT.create()
             .withSubject(usuario.idUsuario.toString())

@@ -41,26 +41,6 @@ fun Application.configureSecurity() {
 
 fun Application.configureRouting() {
 
-    val digestFunction = getDigestFunction("SHA-256") { "ktor${it.length}" }
-
-    val hashedUserTable = UserHashedTableAuth(
-        table = mapOf(
-            "jetbrains" to digestFunction("foobar"),
-            "admin" to digestFunction("password")
-        ),
-        digester = digestFunction
-    )
-
-
-//    install(Authentication) {
-//        basic("auth-basic") {
-//            realm = "Access to the '/' path"
-//            validate { credentials ->
-//                hashedUserTable.authenticate(credentials)
-//            }
-//        }
-//    }
-
     routing {
         route("/api/v1") {
            articuloRoutes()
