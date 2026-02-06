@@ -207,21 +207,4 @@ class UsuarioService {
     private fun hashPassword(password: String): String {
         return BCrypt.withDefaults().hashToString(4, password.toCharArray())
     }
-
-    fun generateJWTToken(usuario: Usuario): String {
-        val now = Date()
-        val validity = Date(now.time + 30000)
-
-        return JWT.create()
-            .withSubject(usuario.idUsuario.toString())
-            .withIssuer(JWT_ISSUER)
-            .withAudience(JWT_AUDIENCE)
-            .withClaim("userId", usuario.idUsuario)
-            .withClaim("username", usuario.nombreUsuario)
-            .withClaim("email", usuario.correo)
-            .withClaim("role", usuario.rol)
-            .withIssuedAt(now)
-            .withExpiresAt(validity)
-            .sign(Algorithm.HMAC256(JWT_SECRET))
-    }
 }
