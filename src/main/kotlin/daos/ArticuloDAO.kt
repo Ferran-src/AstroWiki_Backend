@@ -26,8 +26,6 @@ object ArticuloDAO {
         Articulos.insert {
             it[titulo] = articulo.titulo
             it[contenido] = articulo.contenido
-            it[fechaCreacion] = articulo.fechaCreacion
-            it[fechaUltimaEdicion] = articulo.fechaUltimaEdicion
             it[estado] = articulo.estado
         }[Articulos.id].value // Use .value to get Int from EntityID<Int>
     }
@@ -37,7 +35,6 @@ object ArticuloDAO {
         Articulos.update({ Articulos.id eq id }) { row ->
             row[titulo] = articulo.titulo
             row[contenido] = articulo.contenido
-            row[fechaUltimaEdicion] = articulo.fechaUltimaEdicion
             row[estado] = articulo.estado
         } > 0
     }
