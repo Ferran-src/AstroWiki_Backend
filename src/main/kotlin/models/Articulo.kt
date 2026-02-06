@@ -13,5 +13,5 @@ data class Articulo @OptIn(ExperimentalTime::class) constructor(
     val contenido: String,
     @SerialName("fecha_creacion")  @Contextual val fechaCreacion: Instant?,
     @SerialName("fecha_ultima_edicion") @Contextual val fechaUltimaEdicion: Instant?,
-    val estado: String
+    val estado: String = "activo"
 )
