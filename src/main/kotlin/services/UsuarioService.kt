@@ -210,6 +210,7 @@ class UsuarioService {
 
     fun generateJWTToken(usuario: Usuario): String {
         val now = Date()
+        //validity set to 30s for testing
         val validity = Date(now.time + 30000)
 
         return JWT.create()
