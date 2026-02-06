@@ -15,7 +15,7 @@ fun Route.articuloRoutes() {
 
     route("/articulos") {
 
-        authenticate("auth-basic") {
+        authenticate("auth-jwt") {
             get {
                 try {
                     call.respond(service.getAll())

@@ -2,8 +2,14 @@ package org.example.services
 
 
 import at.favre.lib.crypto.bcrypt.BCrypt
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
 import org.example.daos.UsuarioDAO
 import org.example.models.Usuario
+import org.example.plugins.JWT_AUDIENCE
+import org.example.plugins.JWT_ISSUER
+import org.example.plugins.JWT_SECRET
+import java.util.Date
 
 data class ActualizarPerfilRequest(
     val nombreUsuario: String,
@@ -200,5 +206,22 @@ class UsuarioService {
     }
     private fun hashPassword(password: String): String {
         return BCrypt.withDefaults().hashToString(4, password.toCharArray())
+    }
+
+    fun generateJWTToken(usuario: Usuario): String {
+        val now = Date()
+        val validity = Date(now.time + 30000)
+
+        return JWT.create()
+            .withSubject(usuario.idUsuario.toString())
+            .withIssuer(JWT_ISSUER)
+            .withAudience(JWT_AUDIENCE)
+            .withClaim("userId", usuario.idUsuario)
+            .withClaim("username", usuario.nombreUsuario)
+            .withClaim("email", usuario.correo)
+            .withClaim("role", usuario.rol)
+            .withIssuedAt(now)
+            .withExpiresAt(validity)
+            .sign(Algorithm.HMAC256(JWT_SECRET))
     }
 }
