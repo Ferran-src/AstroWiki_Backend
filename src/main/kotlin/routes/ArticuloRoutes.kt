@@ -16,6 +16,7 @@ fun Route.articuloRoutes() {
     route("/articulos") {
 
         authenticate("auth-jwt") {
+
             get {
                 try {
                     call.respond(service.getAll())
