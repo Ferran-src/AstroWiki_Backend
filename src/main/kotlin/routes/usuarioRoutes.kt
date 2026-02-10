@@ -13,6 +13,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import org.example.models.Usuario
+import org.example.plugins.generateJWTToken
 
 import org.example.services.UsuarioService
 import org.example.services.ActualizarPerfilRequest
@@ -45,7 +46,7 @@ fun Route.usuarioRoutes() {
                     val usuarioAutenticado = service.authenticateUsuario(loginRequest.correo, loginRequest.contrasena)
 
                     if (usuarioAutenticado != null) {
-                        val token = service.generateJWTToken(usuarioAutenticado)
+                        val token = generateJWTToken(usuarioAutenticado)
                         println("JWT GENERADO: $token")
                         call.respond(HttpStatusCode.OK, LoginResponse("Login exitoso", usuarioAutenticado.idUsuario, token))
                     } else {

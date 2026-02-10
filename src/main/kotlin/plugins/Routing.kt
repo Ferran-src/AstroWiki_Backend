@@ -13,31 +13,7 @@ import io.ktor.server.response.respondText
 import io.ktor.util.getDigestFunction
 import org.example.routes.*
 
-const val JWT_SECRET = "your-super-secret-jwt-key" // Usa una clave más segura y guárdala en variables de entorno
-const val JWT_ISSUER = "AstroWiki"
-const val JWT_AUDIENCE = "AstroWiki-users"
-const val JWT_REALM = "AstroWiki API"
 
-fun Application.configureSecurity() {
-    install(Authentication) {
-        jwt("auth-jwt") {
-            realm = JWT_REALM
-            verifier(
-                JWT.require(Algorithm.HMAC256(JWT_SECRET))
-                    .withIssuer(JWT_ISSUER)
-                    .withAudience(JWT_AUDIENCE)
-                    .build()
-            )
-            validate { credential ->
-                if (credential.payload.audience.contains(JWT_AUDIENCE)) {
-                    UserIdPrincipal(credential.payload.subject)
-                } else {
-                    null
-                }
-            }
-        }
-    }
-}
 
 fun Application.configureRouting() {
 
