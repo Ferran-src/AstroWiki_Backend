@@ -2,14 +2,8 @@ package org.example.services
 
 
 import at.favre.lib.crypto.bcrypt.BCrypt
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
 import org.example.daos.UsuarioDAO
 import org.example.models.Usuario
-import org.example.plugins.JWT_AUDIENCE
-import org.example.plugins.JWT_ISSUER
-import org.example.plugins.JWT_SECRET
-import java.util.Date
 
 data class ActualizarPerfilRequest(
     val nombreUsuario: String,
