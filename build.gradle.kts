@@ -1,6 +1,8 @@
 plugins {
     kotlin("jvm") version "2.2.20"
     kotlin("plugin.serialization") version "2.0.0"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
+
 }
 
 group = "org.example"
@@ -51,10 +53,14 @@ dependencies {
     implementation("io.ktor:ktor-server-auth:2.3.12")
     implementation("io.ktor:ktor-server-auth-jwt:2.3.12")
     implementation("com.auth0:java-jwt:4.4.0")
+    implementation("com.github.johnrengelman.shadow:8.1.1")
 }
 
 tasks.test {
     useJUnitPlatform()
+}
+tasks.build {
+    dependsOn(tasks.shadowJar)
 }
 kotlin {
     jvmToolchain(22)
