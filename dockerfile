@@ -1,5 +1,6 @@
-# Usa una imagen base de Amazon Corretto 22 JRE en Alpine Linux
-FROM amazoncorretto:22-alpine-jre
+# Usa una imagen base de Amazon Corretto 25 JRE en Alpine Linux
+# Es la versión más reciente disponible en Corretto según la lista.
+FROM amazoncorretto:25-alpine
 
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
