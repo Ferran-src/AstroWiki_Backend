@@ -15,20 +15,12 @@ RUN chmod +x ./gradlew
 # Instala bash (opcional, pero ./gradlew puede necesitarlo en Alpine)
 RUN apk add --no-cache bash
 
-# Descarga las dependencias de Gradle (y realiza tareas previas a la compilación si es necesario)
-# Excluimos tareas de compilación de Kotlin/Tests y tareas de copia para acelerar esta etapa de caché
-# La tarea 'dependencies' solo resuelve dependencias, 'build' puede hacer más cosas pero también resuelve dependencias.
-# Si 'build' falla aquí por falta de código fuente, puedes intentar 'resolveDependencies' o 'dependencies'
-# pero 'build' con exclusiones a veces funciona si no hay dependencias de código compilado en la configuración.
-# Si falla, intenta solo: RUN ./gradlew dependencies --no-daemon
 RUN ./gradlew build --exclude-task copyDockerfile --exclude-task copyDockerIgnore -x compileKotlin -x compileTestKotlin --no-daemon || ./gradlew dependencies --no-daemon
 
 # Copia el resto del código fuente (src/, otros archivos)
 COPY . .
 
-# Asegúrate de que gradlew tenga permisos de ejecución de nuevo (por si acaso COPY lo sobrescribió, aunque no debería)
-# No es estrictamente necesario si COPY no sobreescribe gradlew, pero es una precaución.
-# RUN chmod +x ./gradlew # Descomenta si surge error de permisos de nuevo
+ RUN chmod +x ./gradlew # Descomenta si surge error de permisos de nuevo
 
 # Construye el JAR final (excluyendo tareas de copia si las tienes)
 RUN ./gradlew shadowJar --exclude-task copyDockerfile --exclude-task copyDockerIgnore --no-daemon
