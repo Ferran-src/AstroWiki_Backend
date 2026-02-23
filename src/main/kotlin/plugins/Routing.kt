@@ -34,7 +34,6 @@ fun Application.configureRouting() {
         route("/imagen"){
             imagenRoutes()
         }
-        // Ruta raíz u otras rutas que no necesiten un prefijo
         get("/") {
             call.respondText("Bienvenido a la API de Astrowiki!")
         }

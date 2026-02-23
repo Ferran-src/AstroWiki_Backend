@@ -81,30 +81,6 @@ fun Route.seguimientoSeccionesRoutes() {
                     }
                 }
 
-                // Crear un nuevo seguimiento (usuarioId, seccionId) - Opción B: Con cuerpo JSON
-                // put { // O también post, aunque PUT aquí puede implicar "actualizar" la relación
-                //     val usuarioId = call.parameters["usuarioId"]?.toIntOrNull()
-                //     val seccionId = call.parameters["seccionId"]?.toIntOrNull()
-                //     if (usuarioId != null && seccionId != null) {
-                //         try {
-                //             val seguimientoRequest = call.receive<SeguimientoSeccion>() // Recibe objeto, pero ignora los IDs del cuerpo
-                //             // Opcional: Validar que los IDs del cuerpo coincidan con los de la URL
-                //             if (seguimientoRequest.usuarioId != usuarioId || seguimientoRequest.seccionId != seccionId) {
-                //                 call.respond(HttpStatusCode.BadRequest, "Los IDs del cuerpo no coinciden con los de la URL.")
-                //                 return@put
-                //             }
-                //             val seguimientoCreado = service.createSeguimientoConObjeto(seguimientoRequest)
-                //             call.respond(HttpStatusCode.Created, seguimientoCreado)
-                //         } catch (e: IllegalArgumentException) {
-                //             call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
-                //         } catch (e: Exception) {
-                //             call.respond(HttpStatusCode.InternalServerError, mapOf("error" to "Error interno del servidor"))
-                //             e.printStackTrace()
-                //         }
-                //     } else {
-                //         call.respond(HttpStatusCode.BadRequest, "ID de usuario o sección inválido")
-                //     }
-                // }
 
                 delete {
                     val usuarioId = call.parameters["usuarioId"]?.toIntOrNull()

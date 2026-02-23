@@ -58,7 +58,7 @@ object SeccionDAO {
             idSeccion = row[Secciones.id].value,
             titulo = row[Secciones.titulo],
             descripcion = row[Secciones.descripcion],
-            fechaCreacion = row[Secciones.fechaCreacion].toString(),
+            fechaCreacion = row[Secciones.fechaCreacion],
             creadorId = row[Usuarios.id].value,
             imagen = null
 

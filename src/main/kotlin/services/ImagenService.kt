@@ -7,6 +7,7 @@ import java.util.*
 class ImagenService(private val uploadDirBase: String) {
 
     init {
+
         val baseDir = File(uploadDirBase)
         if (!baseDir.exists()) {
             baseDir.mkdirs()
