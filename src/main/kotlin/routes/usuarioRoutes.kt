@@ -22,7 +22,8 @@ import org.example.services.CambiarContrasenaRequest
 // Data class para recibir credenciales de login
 @Serializable
 data class LoginRequest(
-    val correo: String,
+    val userName: String?,
+    val correo: String?,
     val contrasena: String
 )
 
@@ -43,7 +44,7 @@ fun Route.usuarioRoutes() {
             post {
                 try {
                     val loginRequest = call.receive<LoginRequest>()
-                    val usuarioAutenticado = service.authenticateUsuario(loginRequest.correo, loginRequest.contrasena)
+                    val usuarioAutenticado = service.authenticateUsuario(loginRequest.userName, loginRequest.correo, loginRequest.contrasena)
 
                     if (usuarioAutenticado != null) {
                         val token = generateJWTToken(usuarioAutenticado)

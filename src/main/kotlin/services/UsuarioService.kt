@@ -70,9 +70,12 @@ class UsuarioService {
         return dao.findByCorreo(correo)
     }
 
-    fun authenticateUsuario(correo: String, contrasenaPlana: String): Usuario? {
-        val usuario =
-            dao.findByCorreo(correo) ?: return null
+    fun authenticateUsuario(user: String?, correo: String?, contrasenaPlana: String): Usuario? {
+        val usuario = when {
+            user != null -> dao.findByNombreUsuario(user)
+            correo != null -> dao.findByCorreo(correo)
+            else -> null
+        } ?: return null
 
         val passwordVerificationResult = BCrypt.verifyer().verify(
             contrasenaPlana.toCharArray(),
