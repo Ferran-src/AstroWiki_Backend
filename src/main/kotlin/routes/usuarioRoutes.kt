@@ -22,7 +22,7 @@ import org.example.services.CambiarContrasenaRequest
 // Data class para recibir credenciales de login
 @Serializable
 data class LoginRequest(
-    val userName: String?,
+    val userName: String?, 
     val correo: String?,
     val contrasena: String
 )
