@@ -32,6 +32,7 @@ object UsuarioDAO {
             it[correo] = usuario.correo
             it[contraseña] = usuario.contraseña
             it[rol] = usuario.rol
+            it[imagen] = usuario.imagen
         } get Usuarios.id
 
         usuario.copy(idUsuario = insertedId.value, contraseña = "")
