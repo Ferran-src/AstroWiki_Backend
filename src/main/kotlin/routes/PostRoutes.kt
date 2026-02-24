@@ -44,7 +44,6 @@ fun Route.postRoutes() {
                     var contenido: String? = null
                     var autorId: Int? = null
                     var seccionId: Int? = null
-                    var fechaCreacion: String? = null
 
                     var newImageBytes: ByteArray? = null
                     var newImageMimeType: String? = null
@@ -66,7 +65,6 @@ fun Route.postRoutes() {
                                     "contenido" -> contenido = part.value
                                     "autorId" -> autorId = part.value.toIntOrNull()
                                     "seccionId" -> seccionId = part.value.toIntOrNull()
-                                    "fechaCreacion" -> fechaCreacion = part.value
                                 }
                             }
 

@@ -14,5 +14,5 @@ data class Comentario(
     @SerialName("autor_id") val autorId: Int,
     @SerialName("post_id") val postId: Int,
     @SerialName("comentario_padre_id") val comentarioPadreId: Int?,
-    @SerialName("fecha_creacion") val fechaCreacion: String
+    @SerialName("fecha_creacion") val fechaCreacion: String?
 )
