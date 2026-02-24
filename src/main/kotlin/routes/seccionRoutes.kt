@@ -19,8 +19,6 @@ fun Route.seccionRoutes() {
 
     route("/secciones") {
 
-        authenticate("auth-jwt") {
-
             get {
                 try {
                     val secciones = service.getAllSeccionesWithCreator()
@@ -235,4 +233,3 @@ fun Route.seccionRoutes() {
             }
         }
     }
-}

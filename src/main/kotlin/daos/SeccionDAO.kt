@@ -34,6 +34,7 @@ object SeccionDAO {
             it[titulo] = seccion.titulo
             it[descripcion] = seccion.descripcion
             it[creadorId] = seccion.creadorId!!
+            it[imagen] = seccion.imagen
         } get Secciones.id
 
         seccion.copy(idSeccion = insertedId.value)
@@ -60,7 +61,7 @@ object SeccionDAO {
             descripcion = row[Secciones.descripcion],
             fechaCreacion = row[Secciones.fechaCreacion],
             creadorId = row[Usuarios.id].value,
-            imagen = null
+            imagen = row[Secciones.imagen],
 
         )
     }

@@ -26,7 +26,7 @@ class SeccionesService {
         newImageBytes: ByteArray? = null,
         newImageMimeType: String? = null,
         newImageOriginalFileName: String? = null
-    ): Int {
+    ): Seccion {
         validateSeccion(seccion, isUpdate = false)
 
 
@@ -54,7 +54,7 @@ class SeccionesService {
                 throw e
             }
         }
-        return dao.create(seccionWithImage).idSeccion!!
+        return dao.create(seccionWithImage)
     }
 
 
