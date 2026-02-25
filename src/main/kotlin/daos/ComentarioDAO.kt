@@ -1,6 +1,8 @@
 package org.example.daos
 import org.example.models.Comentario
 import org.example.database.Comentarios
+import org.example.database.Usuarios
+import org.example.models.ComentarioDto
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.selectAll
@@ -70,6 +72,34 @@ object ComentarioDAO {
             postId = row[Comentarios.postId].value,
             comentarioPadreId = row[Comentarios.comentarioPadreId],
             fechaCreacion = row[Comentarios.fechaCreacion].toString()
+        )
+    }
+
+
+    fun findCommentsWithAuthorByPostId(postId: Int): List<ComentarioDto> = transaction {
+        Comentarios
+            .join(Usuarios, JoinType.INNER, additionalConstraint = { Comentarios.autorId eq Usuarios.id })
+            .selectAll()
+            .where { Comentarios.postId eq postId }
+            .map { row ->
+                rowToComentarioDto(row)
+            }
+            .toList()
+    }
+
+    private fun rowToComentarioDto(row: ResultRow): ComentarioDto {
+        return ComentarioDto(
+            idComentario = row[Comentarios.id].value,
+            contenido = row[Comentarios.contenido],
+            imagen = row[Comentarios.imagen],
+            likeCount = row[Comentarios.contadorLikes].toString(),
+            autorId = row[Comentarios.autorId].value,
+            postId = row[Comentarios.postId].value,
+            comentarioPadreId = row[Comentarios.comentarioPadreId],
+            fechaCreacion = row[Comentarios.fechaCreacion].toString(),
+            // --- Datos del Autor ---
+            autorNombre = row[Usuarios.nombreUsuario],
+            autorImagen = row[Usuarios.imagen]
         )
     }
 }

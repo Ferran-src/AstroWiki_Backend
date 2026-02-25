@@ -20,7 +20,6 @@ fun Route.comentarioRoutes() {
 
     route("/comentarios") {
 
-        authenticate("auth-jwt") {
 
             get {
                 try {
@@ -256,6 +255,25 @@ fun Route.comentarioRoutes() {
             }
 
             route("/post/{postId}") {
+                route("/dto") {
+                    get() {
+                        val postId = call.parameters["postId"]?.toIntOrNull()
+                        if (postId != null) {
+                            try {
+                                val comentarios = service.getCommentsWithAuthorByPostId(postId)
+                                call.respond(HttpStatusCode.OK, comentarios) // Responder con la lista de ComentarioDto
+                            } catch (e: Exception) {
+                                call.respond(
+                                    HttpStatusCode.InternalServerError,
+                                    mapOf("error" to "Error interno del servidor")
+                                )
+                                e.printStackTrace()
+                            }
+                        } else {
+                            call.respond(HttpStatusCode.BadRequest, mapOf("error" to "ID de post inválido"))
+                        }
+                    }
+                }
                 get {
                     val postId = call.parameters["postId"]?.toIntOrNull()
                     if (postId != null) {
@@ -302,4 +320,3 @@ fun Route.comentarioRoutes() {
             }
         }
     }
-}

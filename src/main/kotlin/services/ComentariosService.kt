@@ -3,6 +3,7 @@ package org.example.services
 import org.example.daos.ComentarioDAO
 import org.example.models.Comentario
 import org.example.daos.UsuarioDAO
+import org.example.models.ComentarioDto
 
 
 class ComentariosService {
@@ -27,6 +28,9 @@ class ComentariosService {
             throw IllegalArgumentException("ID de autor inválido: $autorId")
         }
         return dao.findByAutorId(autorId)
+    }
+    fun getCommentsWithAuthorByPostId(postId: Int): List<ComentarioDto> {
+        return dao.findCommentsWithAuthorByPostId(postId)
     }
 
     fun getComentarioById(id: Int): Comentario? {
