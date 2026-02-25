@@ -7,6 +7,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.UserIdPrincipal
+import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
 import org.example.models.Usuario
 import java.util.Date
@@ -33,7 +34,7 @@ fun Application.configureSecurity() {
             )
             validate { credential ->
                 if (credential.payload.audience.contains(jwtAudience)) {
-                    UserIdPrincipal(credential.payload.subject)
+                    JWTPrincipal(credential.payload)
                 } else {
                     null
                 }
@@ -44,7 +45,7 @@ fun Application.configureSecurity() {
 
 fun generateJWTToken(usuario: Usuario): String {
     val now = Date()
-    val validity = Date(now.time + 30000)
+    val validity = Date(now.time + 60000)
 
     return JWT.create()
         .withSubject(usuario.idUsuario.toString())

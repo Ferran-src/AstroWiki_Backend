@@ -76,22 +76,47 @@ fun Route.usuarioRoutes() {
         authenticate("auth-jwt") {
             route("/{id}") {
                 get {
-                    // Esta ruta ahora requiere autenticación JWT
                     val principal = call.principal<JWTPrincipal>()
-                    val userId = principal?.payload?.getClaim("userId")?.asInt()
+                    println("PRINCIPAL: $principal")
+                    val payload = principal?.payload
+                    println("PAYLOAD: $payload")
+                    if (payload != null) {
+                        val userIdClaim = payload.getClaim("userId")
+                        println("USER_ID_CLAIM OBJECT: $userIdClaim")
+                        println("USER_ID_CLAIM IS NULL: ${userIdClaim.isNull}")
 
-                    val id = call.parameters["id"]?.toIntOrNull()
-                    if (id != null && id == userId) { // Verifica que el usuario esté accediendo a su propio perfil
-                        val usuario = service.getUsuarioById(id)
-                        if (usuario != null) {
-                            call.respond(usuario)
+                        if (!userIdClaim.isNull) {
+                            val userId = userIdClaim.asInt()
+                            println("USER_ID_PARSED_AS_INT: $userId")
+
+                            val id = call.parameters["id"]?.toIntOrNull()
+                            println("ID URL: $id")
+                            println("ID TOKEN: $userId")
+
+                            if (id != null && id == userId) {
+                                val usuario = service.getUsuarioById(id)
+                                if (usuario != null) {
+                                    call.respond(usuario)
+                                } else {
+                                    call.respond(HttpStatusCode.NotFound, "Usuario no encontrado")
+                                }
+                            } else {
+                                call.respond(HttpStatusCode.Forbidden, "Acceso denegado")
+                            }
+                            return@get
                         } else {
-                            call.respond(HttpStatusCode.NotFound, "Usuario no encontrado")
+                            call.respond(HttpStatusCode.Forbidden, "Acceso denegado: Claim userId faltante o nulo")
+                            return@get
                         }
                     } else {
-                        call.respond(HttpStatusCode.Forbidden, "Acceso denegado")
+                        call.respond(HttpStatusCode.Forbidden, "Acceso denegado: Payload nulo")
+                        return@get
                     }
+
+                    call.respond(HttpStatusCode.InternalServerError, "Error interno: Flujo inesperado")
                 }
+
+
 
                 delete {
                     val id = call.parameters["id"]?.toIntOrNull()
