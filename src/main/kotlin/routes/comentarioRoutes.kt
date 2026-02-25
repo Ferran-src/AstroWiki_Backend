@@ -66,8 +66,8 @@ fun Route.comentarioRoutes() {
                             val multipartData = call.receive<MultiPartData>()
 
                             var contenido: String? = null
-                            var autorId: EntityID<Int>? = null
-                            var postId: EntityID<Int>? = null
+                            var autorId: Int? = null
+                            var postId: Int? = null
                             var comentarioPadreId: Int? = null
                             var newImageBytes: ByteArray? = null
                             var newImageMimeType: String? = null
@@ -87,8 +87,8 @@ fun Route.comentarioRoutes() {
                                     is PartData.FormItem -> {
                                         when (part.name) {
                                             "contenido" -> contenido = part.value
-                                            "autorId" -> autorId = part.value.toIntOrNull() as EntityID<Int>?
-                                            "postId" -> postId = part.value.toIntOrNull() as EntityID<Int>?
+                                            "autorId" -> autorId = part.value.toIntOrNull()
+                                            "postId" -> postId = part.value.toIntOrNull()
                                             "comentarioPadreId" -> comentarioPadreId = part.value.toIntOrNull()
 
                                         }
@@ -120,8 +120,8 @@ fun Route.comentarioRoutes() {
                                 contenido = contenido,
                                 imagen = comentarioExistente.imagen,
                                 likeCount = comentarioExistente.likeCount,
-                                autorId = autorId!!.value,
-                                postId = postId!!.value,
+                                autorId = autorId!!,
+                                postId = postId!!,
                                 comentarioPadreId = comentarioPadreId,
                                 fechaCreacion = comentarioExistente.fechaCreacion
                             )
