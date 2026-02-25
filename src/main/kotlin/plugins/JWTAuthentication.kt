@@ -45,7 +45,7 @@ fun Application.configureSecurity() {
 
 fun generateJWTToken(usuario: Usuario): String {
     val now = Date()
-    val validity = Date(now.time + 60000)
+    val validity = Date(now.time + 6000000)
 
     return JWT.create()
         .withSubject(usuario.idUsuario.toString())
