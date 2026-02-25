@@ -53,7 +53,7 @@ class UsuarioService {
         if (id <= 0) {
             throw IllegalArgumentException("ID de usuario inválido: $id")
         }
-        return dao.findById(id)
+        return dao.findById(id)?.copy(contraseña = "")
     }
 
     fun getUsuarioByNombreUsuario(nombreUsuario: String): Usuario? {
