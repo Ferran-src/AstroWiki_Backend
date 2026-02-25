@@ -55,7 +55,7 @@ class PostService {
                     newImageBytes,
                     newImageOriginalFileName,
                     newImageMimeType,
-                    TipoEntidad.COMENTARIO
+                    TipoEntidad.POST
                 )
                 postWithImage = post.copy(imagen = relativePath)
             } catch (e: Exception) {
