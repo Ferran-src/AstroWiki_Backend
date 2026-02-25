@@ -72,8 +72,8 @@ class UsuarioService {
 
     fun authenticateUsuario(user: String?, correo: String?, contrasenaPlana: String): Usuario? {
         val usuario = when {
-            user != null -> dao.findByNombreUsuario(user)
-            correo != null -> dao.findByCorreo(correo)
+            user != null -> getUsuarioByNombreUsuario(user)
+            correo != null -> getUsuarioByCorreo(correo)
             else -> null
         } ?: return null
 
