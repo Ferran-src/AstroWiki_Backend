@@ -11,8 +11,6 @@ const val UPLOAD_DIR_BASE_PATH = "./uploads"
 
 fun Route.imagenRoutes() {
 
-    authenticate("auth-jwt") {
-
         get("/{relativePath...}") {
             val relativePathSegments = call.parameters.getAll("relativePath")
             if (relativePathSegments.isNullOrEmpty()) {
@@ -55,4 +53,3 @@ fun Route.imagenRoutes() {
             }
         }
     }
-}

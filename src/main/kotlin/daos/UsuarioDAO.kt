@@ -67,7 +67,7 @@ object UsuarioDAO {
             it[Usuarios.nombreUsuario] = nombreUsuario
             it[Usuarios.correo] = correo
             if (rol != null) it[Usuarios.rol] = rol
-            if (imagen.isNullOrEmpty()) {
+            if (!imagen.isNullOrEmpty()) {
                 it[Usuarios.imagen] = imagen
             }
         }
