@@ -10,11 +10,13 @@ import org.example.database.Articulos
 import org.example.database.Categorias
 import org.example.models.ArticuloCategoria
 import org.example.services.ArticuloCategoriaService
+import org.example.services.ArticuloService
 import org.jetbrains.exposed.dao.id.EntityID
 
 fun Route.articuloCategoriaRoutes() {
 
     val service = ArticuloCategoriaService()
+    val articuloService = ArticuloService()
 
     route("/articulos-categorias") {
 
@@ -266,10 +268,19 @@ fun Route.articuloCategoriaRoutes() {
                 get {
                     try {
                         val categoriaId = call.parameters["categoriaId"]?.toIntOrNull()
-                            ?: return@get call.respond(
-                                HttpStatusCode.BadRequest,
-                                mapOf("error" to "ID de categoría inválido")
-                            )
+                        if (categoriaId != null) {
+                            try {
+                                // Llama al método del ArticuloService
+                                val articulos = articuloService.getArticulosByCategoriaId(categoriaId)
+                                call.respond(articulos) // Responde con la lista de artículos completos
+                            } catch (e: Exception) {
+                                // Maneja excepciones apropiadamente
+                                call.respond(HttpStatusCode.InternalServerError, "Error obteniendo artículos por categoría")
+                                e.printStackTrace() // Log para debugging
+                            }
+                        } else {
+                            call.respond(HttpStatusCode.BadRequest, "ID de categoría inválido")
+                        }
 
                         call.respond(service.getByCategoriaId(categoriaId))
                     } catch (e: IllegalArgumentException) {

@@ -22,7 +22,7 @@ object ArticuloCategoriaDAO {
             .map { rowToArticuloCategoria(it) }
     }
 
-    fun getByCategoriaId(categoriaId: Int): List<ArticuloCategoria> = transaction {
+    fun getByCategoriaId(categoriaId: Int?): List<ArticuloCategoria> = transaction {
         ArticulosCategorias
             .selectAll().where { ArticulosCategorias.categoriaId eq categoriaId }
             .map { rowToArticuloCategoria(it) }

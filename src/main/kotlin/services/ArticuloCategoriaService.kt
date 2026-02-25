@@ -12,7 +12,7 @@ class ArticuloCategoriaService(
     fun getByArticuloId(articuloId: Int): List<ArticuloCategoria> =
         dao.getByArticuloId(articuloId)
 
-    fun getByCategoriaId(categoriaId: Int): List<ArticuloCategoria> =
+    fun getByCategoriaId(categoriaId: Int?): List<ArticuloCategoria> =
         dao.getByCategoriaId(categoriaId)
 
     fun exists(articuloId: EntityID<Int>, categoriaId: EntityID<Int>): Boolean =
