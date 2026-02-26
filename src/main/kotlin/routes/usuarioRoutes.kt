@@ -46,6 +46,8 @@ fun Route.usuarioRoutes() {
                     val loginRequest = call.receive<LoginRequest>()
                     val usuarioAutenticado = service.authenticateUsuario(loginRequest.userName, loginRequest.correo, loginRequest.contrasena)
 
+
+
                     if (usuarioAutenticado != null) {
                         val token = generateJWTToken(usuarioAutenticado)
                         println("JWT GENERADO: $token")

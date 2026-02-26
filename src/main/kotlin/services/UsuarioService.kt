@@ -71,20 +71,23 @@ class UsuarioService {
     }
 
     fun authenticateUsuario(user: String?, correo: String?, contrasenaPlana: String): Usuario? {
-        val usuario = when {
-            user != null -> getUsuarioByNombreUsuario(user)
-            correo != null -> getUsuarioByCorreo(correo)
-            else -> null
-        } ?: return null
+        var userAuth = getUsuarioByNombreUsuario(user!!)
+        if (userAuth == null) {
+            userAuth = getUsuarioByCorreo(user)
+        }
+        if (userAuth == null) {
+            return null
+        }
+
 
         val passwordVerificationResult = BCrypt.verifyer().verify(
             contrasenaPlana.toCharArray(),
-            usuario.contraseña // El hash almacenado
+            userAuth.contraseña // El hash almacenado
         )
         println(passwordVerificationResult.details)
         if (passwordVerificationResult.verified) {
 
-            return usuario.copy(contraseña = "")
+            return userAuth.copy(contraseña = "")
         } else {
             return null
         }
