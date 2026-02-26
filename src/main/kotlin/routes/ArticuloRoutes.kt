@@ -52,7 +52,7 @@ fun Route.articuloRoutes() {
                         val articulo = service.getById(id)
                             ?: return@get call.respond(status = HttpStatusCode.NotFound, "No encontrado")
 
-                        call.respond(articulo.toString())
+                        call.respond(articulo)
                     } catch (e: IllegalArgumentException) {
                         call.respond(HttpStatusCode.BadRequest, mapOf("error" to e.message))
                     } catch (e: Exception) {

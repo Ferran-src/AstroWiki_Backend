@@ -45,6 +45,14 @@ object ArticuloDAO {
         } > 0
     }
 
+    fun getByIds(ids: List<Int>): List<Articulo> = transaction {
+        if (ids.isEmpty()) return@transaction emptyList()
+
+        Articulos.selectAll()
+            .where { Articulos.id inList ids }
+            .map { rowToArticulo(it) }
+    }
+
     // Converert rows (ResultRow) -> Articulo (modelo)
     private fun rowToArticulo(row: ResultRow) = Articulo(
         idArticulo = row[Articulos.id].value,
