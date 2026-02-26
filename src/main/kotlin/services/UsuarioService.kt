@@ -2,6 +2,7 @@ package org.example.services
 
 
 import at.favre.lib.crypto.bcrypt.BCrypt
+import kotlinx.serialization.Serializable
 import org.example.daos.UsuarioDAO
 import org.example.models.Usuario
 
@@ -38,7 +39,7 @@ data class ActualizarPerfilRequest(
         return result
     }
 }
-
+@Serializable
 data class CambiarContrasenaRequest(
     val nuevaContrasena: String,
     val contrasenaActual: String? = null
